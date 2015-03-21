@@ -20,34 +20,36 @@ public class Main {
 
 	public static int getLastPush(String dir) {
 		File[] folder = new File("./" + dir).listFiles();
+                int[] folderInt = new int[folder.length];
+                for (int i = 0; i < folder.length; i++) {
+                    folderInt[i] = Integer.parseInt(folder[i].getName());
+                }
 		try {
-			return Integer.parseInt(folder[folder.length - 1].getName().split(
-					"\\.")[0]);
+			return folderInt[folderInt.length-1];
 		} catch (ArrayIndexOutOfBoundsException ex) {
 			return 0;
 		}
 	}
 
-	public static void init(String test1, String dir, String test2, String test3) {
+	public static void init(String test1, String dir, String test2) {
 		if (new File("./" + dir).exists() == false)
 			new File("./" + dir).mkdir();
 	}
 
 	public static void main(String[] args) throws IOException {
-		System.out.println("----------");
+		System.out.println("--------------------");
 		System.out.println("Bootstrap...");
 		try {
-			init(args[0], args[1], args[2], args[3]);
+			init(args[0], args[1], args[2]);
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			System.err
-					.println("Correct args: java -jar jarName.jar domain.com nameOfPushFolder id password");
+			System.err.println("Correct args: java -jar jarName.jar domain.com Password");
 		}
 
 		int i = getLastPush(args[1]);
 		Socket socket;
 		ServerSocket server = new ServerSocket(4030);
-		System.out.println("Server Waiting for image");
-		System.out.println("----------");
+		System.out.println("Bootstrap Completed");
+		System.out.println("--------------------");
 
 		while (true) {
 			try {
@@ -69,13 +71,13 @@ public class Main {
 
 				// leggo in ricezione
 				System.out.println("Attendo auth");
-				String auth = null;
+				String auth = "";
 				auth = stringIn.readLine();
 
 				// check auth
-				System.out.println("Da linea: " + args[2] + "-" + args[3]);
+				System.out.println("Da linea: " + args[2]);
 				System.out.println("Auth ricevuto: " + auth);
-				if (auth.equals(args[2] + "-" + args[3])) {
+				if (auth.equals(args[2])) {
 					os.writeBytes("OK\n");
 					System.out.println("Client Authenticated");
 					// transfer image
@@ -106,7 +108,7 @@ public class Main {
 			} catch (SocketTimeoutException | SocketException s) {
 				System.err.println(s.toString());
 			}
-			System.out.println("----------");
+			System.out.println("--------------------");
 		}
 	}
 }
