@@ -28,3 +28,11 @@ local.properties
  
 # PDT-specific
 .buildpath
+
+#Netbeans
+
+dist/
+build/
+nbproject/
+build.xml
+manifest.mf
