@@ -1,5 +1,3 @@
-package sergix44;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
