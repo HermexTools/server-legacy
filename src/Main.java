@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -22,8 +23,9 @@ public class Main {
 		File[] folder = new File("./" + dir).listFiles();
                 int[] folderInt = new int[folder.length];
                 for (int i = 0; i < folder.length; i++) {
-                    folderInt[i] = Integer.parseInt(folder[i].getName());
+                    folderInt[i] = Integer.parseInt(folder[i].getName().split("\\.")[0]);
                 }
+                Arrays.sort(folderInt);
 		try {
 			return folderInt[folderInt.length-1];
 		} catch (ArrayIndexOutOfBoundsException ex) {
