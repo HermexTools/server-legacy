@@ -10,6 +10,7 @@ public class LoadConfig {
 	private String domain;
 	private String folder;
 	private String pass;
+        private int port;
 
 	public LoadConfig() throws IOException {
 		Properties prop = new Properties();
@@ -18,6 +19,7 @@ public class LoadConfig {
 			prop.setProperty("domain", "localhost");
 			prop.setProperty("folder", "files");
 			prop.setProperty("password", "pass");
+                        prop.setProperty("port", "4030");
 			prop.store(new FileOutputStream("config.properties"), null);
 		}
 		InputStream inputStream = new FileInputStream("config.properties");
@@ -26,6 +28,7 @@ public class LoadConfig {
 		this.domain = prop.getProperty("domain");
 		this.folder = prop.getProperty("folder");
 		this.pass = prop.getProperty("password");
+                this.port = Integer.parseInt(prop.getProperty("port"));
 	}
 
 	public String getFolder() {
@@ -40,11 +43,16 @@ public class LoadConfig {
 		return domain;
 	}
 
-	public boolean changeConfig(String domain, String folder, String password) {
+        public int getPort() {
+                return port;
+        }
+
+	public boolean changeConfig(String domain, String folder, String password,String port) {
 		Properties prop = new Properties();
 		prop.setProperty("domain", domain);
 		prop.setProperty("folder", folder);
 		prop.setProperty("password", password);
+                prop.setProperty("port", port);
 
 		try {
 			if (!new File("config.properties").exists()) {

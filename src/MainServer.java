@@ -34,8 +34,8 @@ public class MainServer {
 		// users = Users.getLocalInstance();
 
 		try {
-			serverSocket = new ServerSocket(Constants.SERVER_PORT);
-			log("Sono in ascolto dalla: " + Constants.SERVER_PORT);
+			serverSocket = new ServerSocket(config.getPort());
+			log("Sono in ascolto dalla: " + config.getPort());
 			log("----------");
 		} catch (IOException exc) {
 			exc.printStackTrace();
@@ -61,7 +61,7 @@ public class MainServer {
 		if (args.length != 0) {
 			if (args.length == 3) {
 				// Config.buildInstance(args[0], args[1]).saveLocal();
-				config.changeConfig(args[0], args[1], args[2]);
+				config.changeConfig(args[0], args[1], args[2], args[3]);
 			} else
 				throw new IllegalArgumentException(
 						"Correct args are: serverDomain, folder, id");
