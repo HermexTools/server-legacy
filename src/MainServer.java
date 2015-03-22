@@ -47,8 +47,8 @@ public class MainServer {
 		System.out.println(toPrint);
 	}
 
-	// Se ci sono args, il primo deve essere il serverDomain, il secondo il
-	// serverID.
+	// Se ci sono args, il primo deve essere il serverDomain, il secondo la
+	// cartella, il terzo l'id
 	public static void main(String[] args) throws Exception {
 		log("----------");
 		log("Bootstrap...");
