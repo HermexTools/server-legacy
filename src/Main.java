@@ -9,7 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -20,22 +19,14 @@ import javax.imageio.ImageIO;
 public class Main {
 
 	public static int getLastPush(String dir) {
-		File[] folder = new File("./" + dir).listFiles();
-                int[] folderInt = new int[folder.length];
-                for (int i = 0; i < folder.length; i++) {
-                    folderInt[i] = Integer.parseInt(folder[i].getName().split("\\.")[0]);
-                }
-                Arrays.sort(folderInt);
-		try {
-			return folderInt[folderInt.length-1];
-		} catch (ArrayIndexOutOfBoundsException ex) {
-			return 0;
-		}
+		return new File("./" + dir).listFiles().length-1;
 	}
 
-	public static void init(String test1, String dir, String test2) {
+	public static void init(String test1, String dir, String pass) {
 		if (new File("./" + dir).exists() == false)
 			new File("./" + dir).mkdir();
+                System.out.println("Folder: "+dir);
+                System.out.println("Server password: "+pass);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -96,16 +87,13 @@ public class Main {
 							+ ".jpg");
 
 					i++;
-					os.close();
-					dis.close();
-					stringIn.close();
 				} else {
 					os.writeBytes("Invalid Id or Password");
 					System.out.println("Invalid Id or Password");
-					os.close();
-					dis.close();
-					stringIn.close();
 				}
+                                os.close();
+                                dis.close();
+                                stringIn.close();
 
 			} catch (SocketTimeoutException | SocketException s) {
 				System.err.println(s.toString());
