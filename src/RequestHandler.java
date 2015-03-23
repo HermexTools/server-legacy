@@ -3,6 +3,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
@@ -16,6 +17,7 @@ import javax.imageio.ImageIO;
 public class RequestHandler implements Runnable {
 
 	private final Socket socket;
+	private FileOutputStream fos = null;
 
 	// private final MainServer server = MainServer.getInstance();
 
@@ -42,11 +44,10 @@ public class RequestHandler implements Runnable {
 			DataInputStream dis = new DataInputStream(socket.getInputStream());
 
 			// Leggo string
-			BufferedReader stringIn = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
+			BufferedReader stringIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 			// Invio al client
-			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
 			// leggo in ricezione
 			MainServer.log("Attendo auth");
@@ -54,18 +55,19 @@ public class RequestHandler implements Runnable {
 
 			// check auth
 			MainServer.log("Auth ricevuto: " + auth);
-			// User user = Users.getLocalInstance().getIfValidAuth(auth);
+
 			LoadConfig config = new LoadConfig();
 			String pass = config.getPass();
 			if (pass.equals(auth)) {
-				os.writeBytes("OK\n");
+				dos.writeBytes("OK\n");
 				System.out.println("Client Authenticated");
 
 				// Aspetto e leggo il type
 				type = stringIn.readLine();
+				System.out.println("fileType: " + type);
 
 				// Informo il client della ricezione e così parte l'upload
-				os.writeBytes(type + "\n");
+				dos.writeBytes(type + "\n");
 
 				Integer i = getLastPush(config.getFolder());
 
@@ -83,17 +85,27 @@ public class RequestHandler implements Runnable {
 					dis.readFully(data);
 					System.out.println("Transfer ended.");
 
-					File toWrite = new File(config.getFolder() + "/" + fileName
-							+ ".png");
+					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
 
-					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)),
-							"png", toWrite);
+					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					os.writeBytes("http://" + config.getDomain() + "/"
-							+ toWrite.getName());
+					dos.writeBytes("http://" + config.getDomain() + "/" + toWrite.getName());
 
 					break;
 				case "file":
+
+					// transfer image
+					int len2 = dis.readInt();
+					System.out.println("Transfer started.");
+					byte[] data2 = new byte[len2];
+					dis.readFully(data2);
+					System.out.println("Transfer ended.");
+
+					fos = new FileOutputStream(config.getFolder() + "/" + fileName + ".zip");
+					fos.write(data2);
+					fos.close();
+
+					dos.writeBytes("http://" + config.getDomain() + "/" + fileName + ".zip");
 
 					break;
 				default:
@@ -102,21 +114,19 @@ public class RequestHandler implements Runnable {
 
 				i++;
 
-				// return link
-				// os.writeBytes("http://" + config.getDomain() + "/"+
-				// toWrite.getParentFile().getName() + "/"+ toWrite.getName());
-
 				System.out.println("Chiudo");
-				os.close();
+				dos.close();
 				dis.close();
 				stringIn.close();
 			} else {
-				os.writeBytes("Invalid Id or Password");
+				dos.writeBytes("Invalid Id or Password");
 				System.out.println("Invalid Id or Password");
-				os.close();
+				dos.close();
 				dis.close();
 				stringIn.close();
 			}
+
+			socket.close();
 
 		} catch (Exception exc) {
 			System.err.println(exc.toString());
