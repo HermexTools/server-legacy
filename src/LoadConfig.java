@@ -16,7 +16,7 @@ public class LoadConfig {
 	public LoadConfig() throws IOException {
 		Properties prop = new Properties();
 
-		if (!new File("config.properties").exists()) {
+		if (!new File("server.properties").exists()) {
 			prop.setProperty("domain", "localhost");
 			prop.setProperty("folder", "files");
 			prop.setProperty("password", "pass");
