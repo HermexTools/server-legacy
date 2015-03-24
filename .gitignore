@@ -36,4 +36,4 @@ build/
 nbproject/
 build.xml
 manifest.mf
-config.properties
+server.properties
