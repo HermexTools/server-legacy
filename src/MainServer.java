@@ -1,12 +1,11 @@
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 public class MainServer {
 
-	private final ServerSocket serverSocket;
+	private ServerSocketChannel serverSocketChannel;
 	private static LoadConfig config;
 	private static MainServer instance;
 
@@ -14,8 +13,8 @@ public class MainServer {
 		return instance;
 	}
 
-	SocketChannel socketChannel = null;
-	ServerSocketChannel serverSocketChannel = null;
+	// SocketChannel socketChannel = null;
+	// ServerSocketChannel serverSocketChannel = null;
 
 	private MainServer() {
 
@@ -29,7 +28,9 @@ public class MainServer {
 		// users = Users.getLocalInstance();
 
 		try {
-			serverSocket = new ServerSocket(config.getPort());
+			serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel.socket().bind(new InetSocketAddress(config.getPort()));
+
 			log("Listening images from: " + config.getPort());
 			// socketChannel = createServerSocketChannel(config.getFilePort());
 			// log("Listening files from: " + config.getFilePort());
@@ -85,7 +86,7 @@ public class MainServer {
 	private void start() {
 		while (true)
 			try {
-				new RequestHandler(serverSocket.accept()).run();
+				new RequestHandler(serverSocketChannel.accept()).run();
 			} catch (IOException exc) {
 				exc.printStackTrace();
 			}

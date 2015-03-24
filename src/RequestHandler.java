@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ServerSocketChannel;
@@ -18,13 +17,13 @@ import javax.imageio.ImageIO;
 
 public class RequestHandler implements Runnable {
 
-	private final Socket socket;
+	private SocketChannel socketChannel;
 	private int filePort;
 
 	// private final MainServer server = MainServer.getInstance();
 
-	public RequestHandler(Socket socket) {
-		this.socket = socket;
+	public RequestHandler(SocketChannel socketChannel) {
+		this.socketChannel = socketChannel;
 		// this.serverSocketChannel = socketChannel;
 		System.out.println("RequestHandler initialized");
 	}
@@ -50,17 +49,17 @@ public class RequestHandler implements Runnable {
 
 		try {
 
-			socket.setSoTimeout(10000);
-			MainServer.log("Client connected from: " + socket);
+			socketChannel.socket().setSoTimeout(10000);
+			MainServer.log("Client connected from: " + socketChannel);
 
 			// Prendere immagine
-			DataInputStream dis = new DataInputStream(socket.getInputStream());
+			DataInputStream dis = new DataInputStream(socketChannel.socket().getInputStream());
 
 			// Leggo string
-			BufferedReader stringIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			BufferedReader stringIn = new BufferedReader(new InputStreamReader(socketChannel.socket().getInputStream()));
 
 			// Invio al client
-			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+			DataOutputStream dos = new DataOutputStream(socketChannel.socket().getOutputStream());
 
 			// leggo in ricezione
 			MainServer.log("Attendo auth");
@@ -107,7 +106,8 @@ public class RequestHandler implements Runnable {
 				case "file":
 
 					// transfer file
-					SocketChannel socketChannel = createServerSocketChannel(filePort);
+					// SocketChannel socketChannel =
+					// createServerSocketChannel(filePort);
 					readFileFromSocket(socketChannel, config.getFolder() + "/" + fileName + ".zip");
 
 					dos.writeBytes("http://" + config.getDomain() + "/" + fileName + ".zip");
@@ -131,7 +131,7 @@ public class RequestHandler implements Runnable {
 				stringIn.close();
 			}
 
-			socket.close();
+			socketChannel.close();
 
 		} catch (Exception exc) {
 			System.err.println(exc.toString());
