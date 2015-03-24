@@ -1,32 +1,27 @@
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
-/**
- * 
- * @author Flegyas
- *
- */
 public class MainServer {
 
 	private final ServerSocket serverSocket;
-
 	private static LoadConfig config;
-
-	// private final Users users;
-
 	private static MainServer instance;
 
 	public static MainServer getInstance() {
 		return instance;
 	}
 
+	SocketChannel socketChannel = null;
+	ServerSocketChannel serverSocketChannel = null;
+
 	private MainServer() {
 
 		try {
 			config = new LoadConfig();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -35,7 +30,9 @@ public class MainServer {
 
 		try {
 			serverSocket = new ServerSocket(config.getPort());
-			log("Sono in ascolto dalla: " + config.getPort());
+			log("Listening images from: " + config.getPort());
+			// socketChannel = createServerSocketChannel(config.getFilePort());
+			// log("Listening files from: " + config.getFilePort());
 			log("----------");
 		} catch (IOException exc) {
 			exc.printStackTrace();
@@ -59,21 +56,21 @@ public class MainServer {
 		config = new LoadConfig();
 
 		if (args.length != 0) {
-			if (args.length == 3) {
-				// Config.buildInstance(args[0], args[1]).saveLocal();
-				config.changeConfig(args[0], args[1], args[2], args[3]);
+			if (args.length == 5) {
+				config.changeConfig(args[0], args[1], args[2], args[3], args[4]);
 			} else
-				throw new IllegalArgumentException(
-						"Correct args are: serverDomain, folder, id");
+				throw new IllegalArgumentException("Correct args are: serverDomain, folder, pass, port, filePort");
 		} else {
-			if (config.getDomain().equals("") || config.getFolder().equals("")
-					|| config.getFolder().equals(""))
+			if (config.getDomain().equals("") || config.getFolder().equals("") || config.getPass().equals("")
+					|| Integer.toString(config.getPort()).equals("")
+					|| Integer.toString(config.getFilePort()).equals(""))
 				throw new Exception("Error reading config properties.");
 			else {
 				log("Domain: " + config.getDomain());
 				log("Folder: " + config.getFolder());
 				log("Pass: " + config.getPass());
-
+				log("Port: " + config.getPort());
+				log("FilePort: " + config.getFilePort());
 			}
 		}
 
@@ -95,11 +92,7 @@ public class MainServer {
 	}
 
 	public void stop() {
-		log("Saving...");
-		// Al momento non interessa
-		// users.save();
-		// config.saveLocal();
-
 		log("Server stopped!");
 	}
+
 }

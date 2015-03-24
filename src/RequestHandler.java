@@ -3,26 +3,30 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import javax.imageio.ImageIO;
 
-/**
- * 
- * @author Flegyas
- *
- */
 public class RequestHandler implements Runnable {
 
 	private final Socket socket;
-	private FileOutputStream fos = null;
+	private int filePort;
 
 	// private final MainServer server = MainServer.getInstance();
 
 	public RequestHandler(Socket socket) {
 		this.socket = socket;
+		// this.serverSocketChannel = socketChannel;
+		System.out.println("RequestHandler initialized");
 	}
 
 	public static int getLastPush(String dir) {
@@ -30,8 +34,17 @@ public class RequestHandler implements Runnable {
 		return new File("./" + dir).listFiles().length + 1;
 	}
 
-	@Override
 	public void run() {
+
+		System.out.println("run() called");
+		LoadConfig config = null;
+		try {
+			config = new LoadConfig();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		this.filePort = config.getFilePort();
 
 		String type = "";
 
@@ -56,7 +69,6 @@ public class RequestHandler implements Runnable {
 			// check auth
 			MainServer.log("Auth ricevuto: " + auth);
 
-			LoadConfig config = new LoadConfig();
 			String pass = config.getPass();
 			if (pass.equals(auth)) {
 				dos.writeBytes("OK\n");
@@ -94,16 +106,9 @@ public class RequestHandler implements Runnable {
 					break;
 				case "file":
 
-					// transfer image
-					int len2 = dis.readInt();
-					System.out.println("Transfer started.");
-					byte[] data2 = new byte[len2];
-					dis.readFully(data2);
-					System.out.println("Transfer ended.");
-
-					fos = new FileOutputStream(config.getFolder() + "/" + fileName + ".zip");
-					fos.write(data2);
-					fos.close();
+					// transfer file
+					SocketChannel socketChannel = createServerSocketChannel(filePort);
+					readFileFromSocket(socketChannel, config.getFolder() + "/" + fileName + ".zip");
 
 					dos.writeBytes("http://" + config.getDomain() + "/" + fileName + ".zip");
 
@@ -133,4 +138,58 @@ public class RequestHandler implements Runnable {
 		}
 		System.out.println("----------");
 	}
+
+	public SocketChannel createServerSocketChannel(int filePort) {
+
+		ServerSocketChannel serverSocketChannel = null;
+		SocketChannel socketChannel = null;
+		try {
+
+			// Da spostare in alto per eseguirlo 1 volta sola
+			serverSocketChannel = ServerSocketChannel.open();
+			serverSocketChannel.socket().bind(new InetSocketAddress(filePort));
+			socketChannel = serverSocketChannel.accept();
+
+			System.out.println("Closing serverSocketChannel...");
+			serverSocketChannel.close();
+			System.out.println("SocketChannel connection established with: " + socketChannel.getRemoteAddress());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return socketChannel;
+	}
+
+	/**
+	 * Reads the bytes from socket and writes to file
+	 *
+	 * @param socketChannel
+	 */
+	public void readFileFromSocket(SocketChannel socketChannel, String fileName) {
+		RandomAccessFile aFile = null;
+		try {
+			aFile = new RandomAccessFile(fileName, "rw");
+			ByteBuffer buffer = ByteBuffer.allocate(1024);
+			FileChannel fileChannel = aFile.getChannel();
+			while (socketChannel.read(buffer) > 0) {
+				buffer.flip();
+				fileChannel.write(buffer);
+				buffer.clear();
+			}
+			Thread.sleep(1000);
+			fileChannel.close();
+			System.out.println("End of file reached, closing channel");
+			socketChannel.close();
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }
