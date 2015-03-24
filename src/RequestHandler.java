@@ -7,10 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import javax.imageio.ImageIO;
@@ -132,24 +130,6 @@ public class RequestHandler implements Runnable {
 			exc.printStackTrace();
 		}
 		System.out.println("----------");
-	}
-
-	public SocketChannel createServerSocketChannel(int filePort) {
-
-		ServerSocketChannel serverSocketChannel = null;
-		SocketChannel socketChannel = null;
-		try {
-
-			serverSocketChannel = ServerSocketChannel.open();
-			serverSocketChannel.socket().bind(new InetSocketAddress(filePort));
-			socketChannel = serverSocketChannel.accept();
-			System.out.println("SocketChannel connection established with: " + socketChannel.getRemoteAddress());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return socketChannel;
 	}
 
 	public void readFileFromSocket(String fileName) {
