@@ -18,9 +18,6 @@ import javax.imageio.ImageIO;
 public class RequestHandler implements Runnable {
 
 	private SocketChannel socketChannel;
-	private int filePort;
-
-	// private final MainServer server = MainServer.getInstance();
 
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
@@ -35,7 +32,6 @@ public class RequestHandler implements Runnable {
 
 	public void run() {
 
-		System.out.println("run() called");
 		LoadConfig config = null;
 		try {
 			config = new LoadConfig();
@@ -43,9 +39,7 @@ public class RequestHandler implements Runnable {
 			e.printStackTrace();
 		}
 
-		this.filePort = config.getFilePort();
-
-		String type = "";
+		String type = null;
 
 		try {
 
@@ -106,10 +100,11 @@ public class RequestHandler implements Runnable {
 				case "file":
 
 					// transfer file
-					// SocketChannel socketChannel =
-					// createServerSocketChannel(filePort);
-					readFileFromSocket(socketChannel, config.getFolder() + "/" + fileName + ".zip");
+					System.out.println("Transfer started.");
+					readFileFromSocket(config.getFolder() + "/" + fileName + ".zip");
+					System.out.println("Transfer ended.");
 
+					System.out.println("Sending link...");
 					dos.writeBytes("http://" + config.getDomain() + "/" + fileName + ".zip");
 
 					break;
@@ -134,7 +129,7 @@ public class RequestHandler implements Runnable {
 			socketChannel.close();
 
 		} catch (Exception exc) {
-			System.err.println(exc.toString());
+			exc.printStackTrace();
 		}
 		System.out.println("----------");
 	}
@@ -145,13 +140,9 @@ public class RequestHandler implements Runnable {
 		SocketChannel socketChannel = null;
 		try {
 
-			// Da spostare in alto per eseguirlo 1 volta sola
 			serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.socket().bind(new InetSocketAddress(filePort));
 			socketChannel = serverSocketChannel.accept();
-
-			System.out.println("Closing serverSocketChannel...");
-			serverSocketChannel.close();
 			System.out.println("SocketChannel connection established with: " + socketChannel.getRemoteAddress());
 
 		} catch (IOException e) {
@@ -161,12 +152,7 @@ public class RequestHandler implements Runnable {
 		return socketChannel;
 	}
 
-	/**
-	 * Reads the bytes from socket and writes to file
-	 *
-	 * @param socketChannel
-	 */
-	public void readFileFromSocket(SocketChannel socketChannel, String fileName) {
+	public void readFileFromSocket(String fileName) {
 		RandomAccessFile aFile = null;
 		try {
 			aFile = new RandomAccessFile(fileName, "rw");
@@ -180,7 +166,7 @@ public class RequestHandler implements Runnable {
 			Thread.sleep(1000);
 			fileChannel.close();
 			System.out.println("End of file reached, closing channel");
-			socketChannel.close();
+			// socketChannel.close();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
