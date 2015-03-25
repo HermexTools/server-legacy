@@ -38,10 +38,10 @@ public class RequestHandler implements Runnable {
 
 		try {
 
-			socketChannel.socket().setSoTimeout(10000);
+			// socketChannel.socket().setSoTimeout(10000);
 			MainServer.log("Client connected from: " + socketChannel);
 
-			// Prendere immagine
+			// Ricevo
 			dis = new DataInputStream(socketChannel.socket().getInputStream());
 
 			// Invio al client
@@ -56,7 +56,7 @@ public class RequestHandler implements Runnable {
 
 			String pass = config.getPass();
 			if (pass.equals(auth)) {
-				dos.writeBytes("OK\n");
+				dos.writeUTF("OK");
 				System.out.println("Client Authenticated");
 
 				// Aspetto e leggo il type
@@ -64,7 +64,7 @@ public class RequestHandler implements Runnable {
 				System.out.println("fileType: " + type);
 
 				// Informo il client della ricezione e così parte l'upload
-				dos.writeBytes(type + "\n");
+				dos.writeUTF(type);
 
 				Integer i = getLastPush(config.getFolder());
 
@@ -83,10 +83,9 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
-
 					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					dos.writeBytes("http://" + config.getDomain() + "/" + toWrite.getName());
+					dos.writeUTF("http://" + config.getDomain() + "/" + toWrite.getName());
 
 					break;
 				case "file":
@@ -98,7 +97,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeBytes("http://" + config.getDomain() + "/" + fileName + ".zip");
+					dos.writeUTF("http://" + config.getDomain() + "/" + fileName + ".zip");
 
 					break;
 				default:
@@ -131,7 +130,7 @@ public class RequestHandler implements Runnable {
 			aFile = new RandomAccessFile(fileName, "rw");
 			FileChannel fileChannel = aFile.getChannel();
 
-			long fileLength = Long.parseLong(dis.readUTF());
+			long fileLength = dis.readLong();
 			System.out.println("File length: " + fileLength);
 
 			fileChannel.transferFrom(socketChannel, 0, fileLength);
