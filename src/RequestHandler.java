@@ -17,6 +17,8 @@ public class RequestHandler implements Runnable {
 
 	private SocketChannel socketChannel;
 
+	BufferedReader stringIn;
+
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
 		// this.serverSocketChannel = socketChannel;
@@ -48,7 +50,7 @@ public class RequestHandler implements Runnable {
 			DataInputStream dis = new DataInputStream(socketChannel.socket().getInputStream());
 
 			// Leggo string
-			BufferedReader stringIn = new BufferedReader(new InputStreamReader(socketChannel.socket().getInputStream()));
+			stringIn = new BufferedReader(new InputStreamReader(socketChannel.socket().getInputStream()));
 
 			// Invio al client
 			DataOutputStream dos = new DataOutputStream(socketChannel.socket().getOutputStream());
@@ -99,6 +101,7 @@ public class RequestHandler implements Runnable {
 
 					// transfer file
 					System.out.println("Transfer started.");
+
 					readFileFromSocket(config.getFolder() + "/" + fileName + ".zip");
 					System.out.println("Transfer ended.");
 
@@ -136,17 +139,25 @@ public class RequestHandler implements Runnable {
 		RandomAccessFile aFile = null;
 		try {
 			aFile = new RandomAccessFile(fileName, "rw");
-			ByteBuffer buffer = ByteBuffer.allocate(1024);
+			ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
 			FileChannel fileChannel = aFile.getChannel();
+
+			long fileLength = Long.parseLong(stringIn.readLine());
+			System.out.println("File length: " + fileLength);
+
+			fileChannel.transferFrom(socketChannel, 0, fileLength);
+
+			fileChannel.close();
+
 			while (socketChannel.read(buffer) > 0) {
 				buffer.flip();
 				fileChannel.write(buffer);
 				buffer.clear();
 			}
+
 			Thread.sleep(1000);
 			fileChannel.close();
 			System.out.println("End of file reached, closing channel");
-			// socketChannel.close();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
