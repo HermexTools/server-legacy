@@ -1,11 +1,9 @@
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
@@ -15,12 +13,10 @@ import javax.imageio.ImageIO;
 public class RequestHandler implements Runnable {
 
 	private SocketChannel socketChannel;
-
-	BufferedReader stringIn;
+	DataInputStream dis;
 
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
-		// this.serverSocketChannel = socketChannel;
 		System.out.println("RequestHandler initialized");
 	}
 
@@ -46,17 +42,14 @@ public class RequestHandler implements Runnable {
 			MainServer.log("Client connected from: " + socketChannel);
 
 			// Prendere immagine
-			DataInputStream dis = new DataInputStream(socketChannel.socket().getInputStream());
-
-			// Leggo string
-			stringIn = new BufferedReader(new InputStreamReader(socketChannel.socket().getInputStream()));
+			dis = new DataInputStream(socketChannel.socket().getInputStream());
 
 			// Invio al client
 			DataOutputStream dos = new DataOutputStream(socketChannel.socket().getOutputStream());
 
 			// leggo in ricezione
 			MainServer.log("Attendo auth");
-			String auth = stringIn.readLine();
+			String auth = dis.readUTF();
 
 			// check auth
 			MainServer.log("Auth ricevuto: " + auth);
@@ -67,7 +60,7 @@ public class RequestHandler implements Runnable {
 				System.out.println("Client Authenticated");
 
 				// Aspetto e leggo il type
-				type = stringIn.readLine();
+				type = dis.readUTF();
 				System.out.println("fileType: " + type);
 
 				// Informo il client della ricezione e così parte l'upload
@@ -117,13 +110,11 @@ public class RequestHandler implements Runnable {
 				System.out.println("Chiudo");
 				dos.close();
 				dis.close();
-				stringIn.close();
 			} else {
 				dos.writeBytes("Invalid Id or Password");
 				System.out.println("Invalid Id or Password");
 				dos.close();
 				dis.close();
-				stringIn.close();
 			}
 
 			socketChannel.close();
@@ -140,7 +131,7 @@ public class RequestHandler implements Runnable {
 			aFile = new RandomAccessFile(fileName, "rw");
 			FileChannel fileChannel = aFile.getChannel();
 
-			long fileLength = Long.parseLong(stringIn.readLine());
+			long fileLength = Long.parseLong(dis.readUTF());
 			System.out.println("File length: " + fileLength);
 
 			fileChannel.transferFrom(socketChannel, 0, fileLength);
