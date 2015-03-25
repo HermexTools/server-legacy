@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 
@@ -139,21 +138,13 @@ public class RequestHandler implements Runnable {
 		RandomAccessFile aFile = null;
 		try {
 			aFile = new RandomAccessFile(fileName, "rw");
-			ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
 			FileChannel fileChannel = aFile.getChannel();
 
 			long fileLength = Long.parseLong(stringIn.readLine());
 			System.out.println("File length: " + fileLength);
 
 			fileChannel.transferFrom(socketChannel, 0, fileLength);
-
 			fileChannel.close();
-
-			while (socketChannel.read(buffer) > 0) {
-				buffer.flip();
-				fileChannel.write(buffer);
-				buffer.clear();
-			}
 
 			Thread.sleep(1000);
 			fileChannel.close();
