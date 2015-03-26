@@ -21,7 +21,6 @@ public class LoadConfig {
 			prop.setProperty("folder", "files");
 			prop.setProperty("password", "pass");
 			prop.setProperty("port", "4030");
-			prop.setProperty("fileport", "4031");
 			prop.store(new FileOutputStream("server.properties"), null);
 		}
 		InputStream inputStream = new FileInputStream("server.properties");
@@ -60,7 +59,6 @@ public class LoadConfig {
 		prop.setProperty("folder", folder);
 		prop.setProperty("password", password);
 		prop.setProperty("port", port.toString());
-		prop.setProperty("fileport", filePort.toString());
 
 		try {
 			if (!new File("server.properties").exists()) {

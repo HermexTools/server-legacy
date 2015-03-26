@@ -82,10 +82,10 @@ public class RequestHandler implements Runnable {
 					dis.readFully(data);
 					System.out.println("Transfer ended.");
 
-					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
+					File toWrite = new File(config.getFolder() + "/"+config.getFolder() + "/" + fileName + ".png");
 					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					dos.writeUTF("http://" + config.getDomain() + "/" + toWrite.getName());
+					dos.writeUTF(config.getFolder() + "/"+config.getFolder() + "/" + fileName + ".png");
 
 					break;
 				case "file":
