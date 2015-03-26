@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 public class MainServer {
 
@@ -84,11 +85,14 @@ public class MainServer {
 	}
 
 	private void start() {
+
 		while (true)
 			try {
-				new RequestHandler(serverSocketChannel.accept()).run();
-			} catch (IOException exc) {
-				exc.printStackTrace();
+				SocketChannel clientSocket = serverSocketChannel.accept();
+				RequestHandler requestHandler = new RequestHandler(clientSocket);
+				new Thread(requestHandler).start();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 	}
 
