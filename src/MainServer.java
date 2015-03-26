@@ -64,15 +64,13 @@ public class MainServer {
 				throw new IllegalArgumentException("Correct args are: serverDomain, folder, pass, port, filePort");
 		} else {
 			if (config.getDomain().equals("") || config.getFolder().equals("") || config.getPass().equals("")
-					|| Integer.toString(config.getPort()).equals("")
-					|| Integer.toString(config.getFilePort()).equals(""))
+					|| Integer.toString(config.getPort()).equals(""))
 				throw new Exception("Error reading config properties.");
 			else {
 				log("Domain: " + config.getDomain());
 				log("Folder: " + config.getFolder());
 				log("Pass: " + config.getPass());
 				log("Port: " + config.getPort());
-				log("FilePort: " + config.getFilePort());
 			}
 		}
 

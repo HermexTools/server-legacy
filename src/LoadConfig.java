@@ -49,10 +49,6 @@ public class LoadConfig {
 		return port;
 	}
 
-	public int getFilePort() {
-		return filePort;
-	}
-
 	public boolean changeConfig(String domain, String folder, String password, String port, String filePort) {
 		Properties prop = new Properties();
 		prop.setProperty("domain", domain);

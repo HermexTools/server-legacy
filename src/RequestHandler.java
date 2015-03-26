@@ -82,10 +82,10 @@ public class RequestHandler implements Runnable {
 					dis.readFully(data);
 					System.out.println("Transfer ended.");
 
-					File toWrite = new File(config.getFolder() + "/"+config.getFolder() + "/" + fileName + ".png");
+					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
 					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					dos.writeUTF(config.getFolder() + "/"+config.getFolder() + "/" + fileName + ".png");
+					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".png");
 
 					break;
 				case "file":
@@ -96,7 +96,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/" + fileName + ".zip");
+					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".zip");
 
 					break;
 				case "txt":
@@ -107,7 +107,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/" + fileName + ".txt");
+					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".txt");
 
 					break;
 				default:
