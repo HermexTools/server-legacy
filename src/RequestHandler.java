@@ -92,12 +92,22 @@ public class RequestHandler implements Runnable {
 
 					// transfer file
 					System.out.println("Transfer started.");
-
 					readFileFromSocket(config.getFolder() + "/" + fileName + ".zip");
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
 					dos.writeUTF("http://" + config.getDomain() + "/" + fileName + ".zip");
+
+					break;
+				case "txt":
+
+					// transfer a txt
+					System.out.println("Transfer started.");
+					readFileFromSocket(config.getFolder() + "/" + fileName + ".txt");
+					System.out.println("Transfer ended.");
+
+					System.out.println("Sending link...");
+					dos.writeUTF("http://" + config.getDomain() + "/" + fileName + ".txt");
 
 					break;
 				default:
