@@ -19,12 +19,11 @@ public class RequestHandler implements Runnable {
 		this.socketChannel = socketChannel;
 		System.out.println("RequestHandler initialized");
 	}
-        
-        /*
-	public static int getLastPush(String dir) {
-		// Sistema schifoso, da cambiare
-		return new File("./" + dir).listFiles().length + 1;
-	}*/
+
+	/*
+	 * public static int getLastPush(String dir) { // Sistema schifoso, da
+	 * cambiare return new File("./" + dir).listFiles().length + 1; }
+	 */
 
 	public void run() {
 
@@ -67,9 +66,9 @@ public class RequestHandler implements Runnable {
 				// Informo il client della ricezione e così parte l'upload
 				dos.writeUTF(type);
 
-				//Integer i = getLastPush(config.getFolder());
+				// Integer i = getLastPush(config.getFolder());
 
-				String fileName = System.currentTimeMillis()/1000+""+((int) (Math.random() * 999));
+				String fileName = System.currentTimeMillis() / 1000 + "" + ((int) (Math.random() * 999));
 				System.out.println("fileName: " + fileName);
 
 				switch (type) {
@@ -86,7 +85,7 @@ public class RequestHandler implements Runnable {
 					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
 					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".png");
+					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".png");
 
 					break;
 				case "file":
@@ -97,7 +96,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".zip");
+					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".zip");
 
 					break;
 				case "txt":
@@ -108,20 +107,20 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/"+config.getFolder() + "/" + fileName + ".txt");
+					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".txt");
 
 					break;
 				default:
 
 				}
 
-				//i++;
+				// i++;
 
 				System.out.println("Chiudo");
 				dos.close();
 				dis.close();
 			} else {
-				dos.writeBytes("Invalid Id or Password");
+				dos.writeUTF("WRONG_PASS");
 				System.out.println("Invalid Id or Password");
 				dos.close();
 				dis.close();
