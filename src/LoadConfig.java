@@ -11,7 +11,6 @@ public class LoadConfig {
 	private String folder;
 	private String pass;
 	private int port;
-	private int filePort;
 
 	public LoadConfig() throws IOException {
 		Properties prop = new Properties();
@@ -30,7 +29,6 @@ public class LoadConfig {
 		this.folder = prop.getProperty("folder");
 		this.pass = prop.getProperty("password");
 		this.port = Integer.parseInt(prop.getProperty("port"));
-		this.filePort = Integer.parseInt(prop.getProperty("fileport"));
 	}
 
 	public String getFolder() {

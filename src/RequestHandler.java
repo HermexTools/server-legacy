@@ -19,11 +19,12 @@ public class RequestHandler implements Runnable {
 		this.socketChannel = socketChannel;
 		System.out.println("RequestHandler initialized");
 	}
-
+        
+        /*
 	public static int getLastPush(String dir) {
 		// Sistema schifoso, da cambiare
 		return new File("./" + dir).listFiles().length + 1;
-	}
+	}*/
 
 	public void run() {
 
@@ -66,9 +67,9 @@ public class RequestHandler implements Runnable {
 				// Informo il client della ricezione e così parte l'upload
 				dos.writeUTF(type);
 
-				Integer i = getLastPush(config.getFolder());
+				//Integer i = getLastPush(config.getFolder());
 
-				String fileName = i.toString();
+				String fileName = System.currentTimeMillis()/1000+""+((int) (Math.random() * 999));
 				System.out.println("fileName: " + fileName);
 
 				switch (type) {
@@ -114,7 +115,7 @@ public class RequestHandler implements Runnable {
 
 				}
 
-				i++;
+				//i++;
 
 				System.out.println("Chiudo");
 				dos.close();
