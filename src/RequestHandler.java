@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -138,40 +136,39 @@ public class RequestHandler implements Runnable {
 
 	public void readFileFromSocket(String fileName) {
 		try {
-                    RandomAccessFile aFile = null;
-                    FileChannel fileChannel;
-                    aFile = new RandomAccessFile(fileName, "rw");
-                    fileChannel = aFile.getChannel();
-                    try {
-                        
-                        
-                        long fileLength = dis.readLong();
-                        System.out.println("File length: " + fileLength);
-                        
-                        fileChannel.transferFrom(socketChannel, 0, fileLength);
-                        fileChannel.close();
-                        aFile.close();
-                        
-                        Thread.sleep(1000);
-                        fileChannel.close();
-                        System.out.println("End of file reached, closing channel");
-                        
-                    } catch (IOException | InterruptedException e) {
-                        try {
-                            e.printStackTrace();
-                            aFile.close();
-                            fileChannel.close();
-                            new File(fileName).delete();
-                            System.out.println("Transfer cancelled.");
-                            if(System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
-                                Runtime.getRuntime().exec("del /f /q "+fileName);
-                            System.out.println("Transfer cancelled.");
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                    
-                } catch (FileNotFoundException ex) {
+			RandomAccessFile aFile = null;
+			FileChannel fileChannel;
+			aFile = new RandomAccessFile(fileName, "rw");
+			fileChannel = aFile.getChannel();
+			try {
+
+				long fileLength = dis.readLong();
+				System.out.println("File length: " + fileLength);
+
+				fileChannel.transferFrom(socketChannel, 0, fileLength);
+				fileChannel.close();
+				aFile.close();
+
+				Thread.sleep(1000);
+				fileChannel.close();
+				System.out.println("End of file reached, closing channel");
+
+			} catch (IOException | InterruptedException e) {
+				try {
+					e.printStackTrace();
+					aFile.close();
+					fileChannel.close();
+					new File(fileName).delete();
+					System.out.println("Transfer cancelled.");
+					if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
+						Runtime.getRuntime().exec("del /f /q " + fileName);
+					System.out.println("Transfer cancelled.");
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
+
+		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
 		}
 
