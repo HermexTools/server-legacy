@@ -58,10 +58,10 @@ public class MainServer {
 		config = new LoadConfig();
 
 		if (args.length != 0) {
-			if (args.length == 5) {
-				config.changeConfig(args[0], args[1], args[2], args[3], args[4]);
+			if (args.length == 4) {
+				config.changeConfig(args[0], args[1], args[2], args[3]);
 			} else
-				throw new IllegalArgumentException("Correct args are: serverDomain, folder, pass, port, filePort");
+				throw new IllegalArgumentException("Correct args are: serverDomain, folder, pass, port");
 		} else {
 			if (config.getDomain().equals("") || config.getFolder().equals("") || config.getPass().equals("")
 					|| Integer.toString(config.getPort()).equals(""))
