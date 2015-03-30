@@ -1,4 +1,5 @@
 package it.ksuploader.main;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,7 +15,9 @@ import javax.imageio.ImageIO;
 public class RequestHandler implements Runnable {
 
 	private SocketChannel socketChannel;
-	DataInputStream dis;
+	private DataInputStream dis;
+	private String type = null;
+	private LoadConfig config = null;
 
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
@@ -28,14 +31,11 @@ public class RequestHandler implements Runnable {
 
 	public void run() {
 
-		LoadConfig config = null;
 		try {
 			config = new LoadConfig();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		String type = null;
 
 		try {
 
@@ -86,7 +86,7 @@ public class RequestHandler implements Runnable {
 					File toWrite = new File(config.getFolder() + "/" + fileName + ".png");
 					ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", toWrite);
 
-					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".png");
+					dos.writeUTF(returnUrl(fileName, type));
 
 					break;
 				case "file":
@@ -97,7 +97,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".zip");
+					dos.writeUTF(returnUrl(fileName, type));
 
 					break;
 				case "txt":
@@ -108,7 +108,7 @@ public class RequestHandler implements Runnable {
 					System.out.println("Transfer ended.");
 
 					System.out.println("Sending link...");
-					dos.writeUTF("http://" + config.getDomain() + "/" + config.getFolder() + "/" + fileName + ".txt");
+					dos.writeUTF(returnUrl(fileName, type));
 
 					break;
 				default:
@@ -173,6 +173,26 @@ public class RequestHandler implements Runnable {
 			ex.printStackTrace();
 		}
 
+	}
+
+	private String returnUrl(String fileName, String type) {
+		String urlToReturn = "";
+		switch (type) {
+
+		case "img":
+			urlToReturn = config.getWebUrl() + "/" + fileName + ".png";
+			break;
+		case "file":
+			urlToReturn = config.getWebUrl() + "/" + fileName + ".zip";
+			break;
+		case "txt":
+			urlToReturn = config.getWebUrl() + "/" + fileName + ".txt";
+			break;
+		default:
+			break;
+		}
+
+		return urlToReturn;
 	}
 
 }

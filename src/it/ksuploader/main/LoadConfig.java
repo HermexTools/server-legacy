@@ -1,4 +1,5 @@
 package it.ksuploader.main;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,8 +9,8 @@ import java.util.Properties;
 
 public class LoadConfig {
 
-	private String domain;
 	private String folder;
+	private String web_url;
 	private String pass;
 	private int port;
 
@@ -17,8 +18,8 @@ public class LoadConfig {
 		Properties prop = new Properties();
 
 		if (!new File("server.properties").exists()) {
-			prop.setProperty("domain", "localhost");
 			prop.setProperty("folder", "files");
+			prop.setProperty("web_url", "http://domain.com/noFinalSlash");
 			prop.setProperty("password", "pass");
 			prop.setProperty("port", "4030");
 			prop.store(new FileOutputStream("server.properties"), null);
@@ -26,8 +27,8 @@ public class LoadConfig {
 		InputStream inputStream = new FileInputStream("server.properties");
 		prop.load(inputStream);
 
-		this.domain = prop.getProperty("domain");
 		this.folder = prop.getProperty("folder");
+		this.web_url = prop.getProperty("web_url");
 		this.pass = prop.getProperty("password");
 		this.port = Integer.parseInt(prop.getProperty("port"));
 	}
@@ -40,18 +41,18 @@ public class LoadConfig {
 		return pass;
 	}
 
-	public String getDomain() {
-		return domain;
+	public String getWebUrl() {
+		return web_url;
 	}
 
 	public int getPort() {
 		return port;
 	}
 
-	public boolean changeConfig(String domain, String folder, String password, String port) {
+	public boolean changeConfig(String folder, String web_url, String password, String port) {
 		Properties prop = new Properties();
-		prop.setProperty("domain", domain);
 		prop.setProperty("folder", folder);
+		prop.setProperty("web_url", web_url);
 		prop.setProperty("password", password);
 		prop.setProperty("port", port.toString());
 

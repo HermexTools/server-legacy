@@ -1,4 +1,5 @@
 package it.ksuploader.main;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -47,8 +48,6 @@ public class MainServer {
 		System.out.println(toPrint);
 	}
 
-	// Se ci sono args, il primo deve essere il serverDomain, il secondo la
-	// cartella, il terzo l'id
 	public static void main(String[] args) throws Exception {
 		log("----------");
 		log("Bootstrap...");
@@ -59,17 +58,17 @@ public class MainServer {
 		config = new LoadConfig();
 
 		if (args.length != 0) {
-			if (args.length == 4) {
+			if (args.length == 5) {
 				config.changeConfig(args[0], args[1], args[2], args[3]);
 			} else
-				throw new IllegalArgumentException("Correct args are: serverDomain, folder, pass, port");
+				throw new IllegalArgumentException("Correct args are: folder, web_url, pass, port");
 		} else {
-			if (config.getDomain().equals("") || config.getFolder().equals("") || config.getPass().equals("")
-					|| Integer.toString(config.getPort()).equals(""))
+			if (config.getFolder().equals("") || config.getPass().equals("")
+					|| Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals(""))
 				throw new Exception("Error reading config properties.");
 			else {
-				log("Domain: " + config.getDomain());
 				log("Folder: " + config.getFolder());
+				log("WebUrl: " + config.getWebUrl());
 				log("Pass: " + config.getPass());
 				log("Port: " + config.getPort());
 			}
