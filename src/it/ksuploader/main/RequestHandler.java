@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -141,7 +140,6 @@ public class RequestHandler implements Runnable {
 			FileChannel fileChannel;
 			aFile = new RandomAccessFile(fileName, "rw");
 			fileChannel = aFile.getChannel();
-			try {
 
 				long fileLength = dis.readLong();
 				System.out.println("File length: " + fileLength);
@@ -153,25 +151,14 @@ public class RequestHandler implements Runnable {
 				Thread.sleep(1000);
 				fileChannel.close();
 				System.out.println("End of file reached, closing channel");
+                if(fileLength !=  new File(fileName).length()){
+                    System.out.println("File invalid, deleting...");
+                    new File(fileName).delete();
+                }
 
-			} catch (IOException | InterruptedException e) {
-				try {
-					e.printStackTrace();
-					aFile.close();
-					fileChannel.close();
-					new File(fileName).delete();
-					System.out.println("Transfer cancelled.");
-					if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0)
-						Runtime.getRuntime().exec("del /f /q " + fileName);
-					System.out.println("Transfer cancelled.");
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			}
-
-		} catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		}
+		} catch (IOException | InterruptedException ex) {
+            ex.printStackTrace();
+        }
 
 	}
 
