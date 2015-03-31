@@ -9,9 +9,11 @@ To run the server you can use: `java -jar KSUploader_server.jar`, you can define
 ### How to configure
 Open and edit the `server.properties` file, then launch the server again.
 It contains:
-* `folder`: the folder where the files will be stored.
+* `folder`: the folder where the files will be stored, use a dot (.) to say "this directory".
 * `web_url`: the complete domain directory that will be returned in the link to the client. Don't include a final slash.
 * `password`: the password of the server that is required during the authentication check.
 * `port`: the port where the server will accept new connections.
+
+>Attention: all config properties must be not null, even if you don't use one of them.
 
 >Disclaimer: this is a project in early development stage. Since that it may change at any time.
