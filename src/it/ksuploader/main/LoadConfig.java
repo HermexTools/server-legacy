@@ -23,7 +23,7 @@ public class LoadConfig {
             
             if (!new File("server.properties").exists()) {
                 prop.setProperty("folder", "files");
-                prop.setProperty("web_url", "http://domain.com/noFinalSlash");
+                prop.setProperty("web_url", "http://domain.com/");
                 prop.setProperty("password", "pass");
                 prop.setProperty("port", "4030");
                 prop.setProperty("folder_size(MB)", "4096");

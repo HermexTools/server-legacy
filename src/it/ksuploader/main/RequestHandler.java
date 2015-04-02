@@ -199,13 +199,13 @@ public class RequestHandler implements Runnable {
         switch (type) {
             
             case "img":
-                urlToReturn = MainServer.config.getWebUrl() + "/" + fileName + ".png";
+                urlToReturn = MainServer.config.getWebUrl() + fileName + ".png";
                 break;
             case "file":
-                urlToReturn = MainServer.config.getWebUrl() + "/" + fileName + ".zip";
+                urlToReturn = MainServer.config.getWebUrl() + fileName + ".zip";
                 break;
             case "txt":
-                urlToReturn = MainServer.config.getWebUrl() + "/" + fileName + ".txt";
+                urlToReturn = MainServer.config.getWebUrl() + fileName + ".txt";
                 break;
             default:
                 break;
