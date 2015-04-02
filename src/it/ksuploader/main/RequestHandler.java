@@ -16,6 +16,7 @@ public class RequestHandler implements Runnable {
     
     private SocketChannel socketChannel;
     private DataInputStream dis;
+    private DataOutputStream dos;
     private String type = null;
     
     public RequestHandler(SocketChannel socketChannel) {
@@ -34,7 +35,7 @@ public class RequestHandler implements Runnable {
             dis = new DataInputStream(socketChannel.socket().getInputStream());
             
             // Invio al client
-            DataOutputStream dos = new DataOutputStream(socketChannel.socket().getOutputStream());
+            dos = new DataOutputStream(socketChannel.socket().getOutputStream());
             
             // leggo in ricezione
             MainServer.log("Attendo auth");
@@ -55,7 +56,6 @@ public class RequestHandler implements Runnable {
                 // Informo il client della ricezione e così parte l'upload
                 dos.writeUTF(type);
                 
-                // Integer i = getLastPush(config.getFolder());
                 
                 String fileName = System.currentTimeMillis() / 1000 + "" + new Random().nextInt(999);
                 MainServer.log("fileName: " + fileName);
@@ -65,10 +65,13 @@ public class RequestHandler implements Runnable {
                     case "img":
 
                         // transfer image
-                        readImageFromSocket(MainServer.config.getFolder() + "/" + fileName + ".png");
+                        returnValue = readImageFromSocket(MainServer.config.getFolder() + "/" + fileName + ".png");
                         
-                        MainServer.log("Sending link...");
-                        dos.writeUTF(returnUrl(fileName, type));
+                        
+                        if(returnValue.equals("OK")){
+                            MainServer.log("Sending link...");
+                            dos.writeUTF(returnUrl(fileName, type));
+                        }
                         
                         break;
                         
@@ -79,11 +82,11 @@ public class RequestHandler implements Runnable {
                         returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".zip");
                         MainServer.log("Transfer ended.");
                         
-                        MainServer.log("Sending link...");
-                        if(returnValue.equals("OK"))
+                        
+                        if(returnValue.equals("OK")){
+                            MainServer.log("Sending link...");
                             dos.writeUTF(returnUrl(fileName, type));
-                        else
-                            dos.writeUTF(returnValue);
+                        }
                         
                         break;
                         
@@ -94,11 +97,12 @@ public class RequestHandler implements Runnable {
                         returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".txt");
                         MainServer.log("Transfer ended.");
                         
-                        MainServer.log("Sending link...");
-                        if(returnValue.equals("OK"))
+                        
+                        if(returnValue.equals("OK")){
+                            MainServer.log("Sending link...");
                             dos.writeUTF(returnUrl(fileName, type));
-                        else
-                            dos.writeUTF(returnValue);
+                        }
+                            
                         
                         break;
                         
@@ -135,6 +139,7 @@ public class RequestHandler implements Runnable {
 
             if (fileLength+folderSize() <= MainServer.config.getFolderSize()){
                 if(fileLength <= MainServer.config.getMaxFileSize()){
+                    dos.writeUTF("START_TRANSFER");
                     
                     MainServer.log("File length: " + fileLength);
                     
@@ -150,12 +155,14 @@ public class RequestHandler implements Runnable {
                     
                 } else {
                     MainServer.log("File too large!");
-                    return "FILE_TOO_LARGE";  
+                    dos.writeUTF("FILE_TOO_LARGE");
+                    return "FILE_TOO_LARGE";
                 }
                 
             } else {
                 MainServer.log("Server full !");
-                return "SERVER_FULL " ;
+                dos.writeUTF("SERVER_FULL");
+                return "SERVER_FULL";
             }
             
         } catch (IOException ex) {
@@ -164,10 +171,11 @@ public class RequestHandler implements Runnable {
         return "OK";
     }
     
-    private boolean readImageFromSocket(String fileName){
+    private String readImageFromSocket(String fileName){
         try {
             int len = dis.readInt();
             if (len+folderSize() <= MainServer.config.getFolderSize()){
+                dos.writeUTF("START_TRANSFER");
                 MainServer.log("Transfer started.");
                 byte[] data = new byte[len];
                 dis.readFully(data);
@@ -175,13 +183,13 @@ public class RequestHandler implements Runnable {
                 ImageIO.write(ImageIO.read(new ByteArrayInputStream(data)), "png", new File(fileName));
             } else {
                 MainServer.log("Server full!");
-                return false;
+                dos.writeUTF("SERVER_FULL");
+                return "SERVER_FULL";
             }  
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        return true;
-        
+        return "OK";
     }
     
     public long folderSize() {
