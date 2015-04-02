@@ -59,7 +59,7 @@ public class RequestHandler implements Runnable {
                 
                 String fileName = System.currentTimeMillis() / 1000 + "" + new Random().nextInt(999);
                 MainServer.log("fileName: " + fileName);
-                
+                String returnValue;
                 switch (type) {
                     
                     case "img":
@@ -76,27 +76,34 @@ public class RequestHandler implements Runnable {
                         
                         // transfer file
                         MainServer.log("Transfer started.");
-                            readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".zip");
-                            MainServer.log("Transfer ended.");
-                            
-                            MainServer.log("Sending link...");
+                        returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".zip");
+                        MainServer.log("Transfer ended.");
+                        
+                        MainServer.log("Sending link...");
+                        if(returnValue.equals("OK"))
                             dos.writeUTF(returnUrl(fileName, type));
-                            
+                        else
+                            dos.writeUTF(returnValue);
+                        
                         break;
                         
                     case "txt":
                         
                         // transfer a txt
                         MainServer.log("Transfer started.");
-                        readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".txt");
+                        returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".txt");
                         MainServer.log("Transfer ended.");
                         
                         MainServer.log("Sending link...");
-                        dos.writeUTF(returnUrl(fileName, type));
+                        if(returnValue.equals("OK"))
+                            dos.writeUTF(returnUrl(fileName, type));
+                        else
+                            dos.writeUTF(returnValue);
                         
                         break;
-                    default:
                         
+                    default:
+                        MainServer.log("File type not recognized!");    
                 }
                 
                 MainServer.log("Closing..");
@@ -117,7 +124,7 @@ public class RequestHandler implements Runnable {
         System.out.println("----------");
     }
     
-    private boolean readFileFromSocket(String fileName) {
+    private String readFileFromSocket(String fileName) {
         try {
             RandomAccessFile aFile = null;
             FileChannel fileChannel;
@@ -127,27 +134,34 @@ public class RequestHandler implements Runnable {
             long fileLength = dis.readLong();
 
             if (fileLength+folderSize() <= MainServer.config.getFolderSize()){
-                MainServer.log("File length: " + fileLength);
-
-                fileChannel.transferFrom(socketChannel, 0, fileLength);
-                fileChannel.close();
-                aFile.close();
-
-                MainServer.log("End of file reached, closing channel");
-                if(fileLength !=  new File(fileName).length()){
-                    System.out.println("File invalid, deleting...");
-                    new File(fileName).delete();
+                if(fileLength <= MainServer.config.getMaxFileSize()){
+                    
+                    MainServer.log("File length: " + fileLength);
+                    
+                    fileChannel.transferFrom(socketChannel, 0, fileLength);
+                    fileChannel.close();
+                    aFile.close();
+                    
+                    MainServer.log("End of file reached, closing channel");
+                    if(fileLength !=  new File(fileName).length()){
+                        System.out.println("File invalid, deleting...");
+                        new File(fileName).delete();
+                    }
+                    
+                } else {
+                    MainServer.log("File too large!");
+                    return "FILE_TOO_LARGE";  
                 }
                 
             } else {
-                MainServer.log("Server full!");
-                return false;
+                MainServer.log("Server full !");
+                return "SERVER_FULL " ;
             }
             
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        return true;
+        return "OK";
     }
     
     private boolean readImageFromSocket(String fileName){
