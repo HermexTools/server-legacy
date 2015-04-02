@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 public class MainServer {
 
 	private ServerSocketChannel serverSocketChannel;
-	private static LoadConfig config;
+	public static LoadConfig config = new LoadConfig();
 	private static MainServer instance;
 
 	public static MainServer getInstance() {
@@ -20,12 +20,6 @@ public class MainServer {
 	// ServerSocketChannel serverSocketChannel = null;
 
 	private MainServer() {
-
-		try {
-			config = new LoadConfig();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		// Al momento non interessa
 		// users = Users.getLocalInstance();
@@ -55,22 +49,22 @@ public class MainServer {
 		// if (!Constants.OWP_DIR.exists())
 		// Constants.OWP_DIR.mkdirs();
 
-		config = new LoadConfig();
 
 		if (args.length != 0) {
 			if (args.length == 5) {
-				config.changeConfig(args[0], args[1], args[2], args[3]);
+				config.changeConfig(args[0], args[1], args[2], args[3], args[4]);
+                log("Restart for load the new config...");
 			} else
-				throw new IllegalArgumentException("Correct args are: folder, web_url, pass, port");
+				throw new IllegalArgumentException("Correct args are: folder, web_url, pass, port, folder size");
 		} else {
-			if (config.getFolder().equals("") || config.getPass().equals("")
-					|| Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals(""))
+			if (config.getFolder().equals("") || config.getPass().equals("") || Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals(""))
 				throw new Exception("Error reading config properties.");
 			else {
 				log("Folder: " + config.getFolder());
+                log("Folder Max size: " + config.getFolderSize());
 				log("WebUrl: " + config.getWebUrl());
 				log("Pass: " + config.getPass());
-				log("Port: " + config.getPort());
+				log("Port: " + config.getPort()); 
 			}
 		}
 

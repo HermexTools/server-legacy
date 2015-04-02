@@ -12,26 +12,41 @@ public class LoadConfig {
 	private String folder;
 	private String web_url;
 	private String pass;
+    private long folderSize;
 	private int port;
 
-	public LoadConfig() throws IOException {
-		Properties prop = new Properties();
-
-		if (!new File("server.properties").exists()) {
-			prop.setProperty("folder", "files");
-			prop.setProperty("web_url", "http://domain.com/noFinalSlash");
-			prop.setProperty("password", "pass");
-			prop.setProperty("port", "4030");
-			prop.store(new FileOutputStream("server.properties"), null);
-		}
-		InputStream inputStream = new FileInputStream("server.properties");
-		prop.load(inputStream);
-
-		this.folder = prop.getProperty("folder");
-		this.web_url = prop.getProperty("web_url");
-		this.pass = prop.getProperty("password");
-		this.port = Integer.parseInt(prop.getProperty("port"));
-	}
+    public LoadConfig(){
+        InputStream inputStream = null;
+        try {
+            Properties prop = new Properties();
+            
+            if (!new File("server.properties").exists()) {
+                prop.setProperty("folder", "files");
+                prop.setProperty("web_url", "http://domain.com/noFinalSlash");
+                prop.setProperty("password", "pass");
+                prop.setProperty("port", "4030");
+                prop.setProperty("folder_size(MB)", "1024");
+                prop.store(new FileOutputStream("server.properties"), null);
+            }   
+            
+            inputStream = new FileInputStream("server.properties");
+            prop.load(inputStream);
+            this.folder = prop.getProperty("folder");
+            this.web_url = prop.getProperty("web_url");
+            this.pass = prop.getProperty("password");
+            this.port = Integer.parseInt(prop.getProperty("port"));
+            this.folderSize = Long.parseLong(prop.getProperty("folder_size(MB)"))*1048576;
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
 	public String getFolder() {
 		return folder;
@@ -49,20 +64,25 @@ public class LoadConfig {
 		return port;
 	}
 
-	public boolean changeConfig(String folder, String web_url, String password, String port) {
+    public long getFolderSize() {
+        return folderSize;
+    }
+    
+    
+
+	public boolean changeConfig(String folder, String web_url, String password, String port, String folderSize) {
 		Properties prop = new Properties();
 		prop.setProperty("folder", folder);
 		prop.setProperty("web_url", web_url);
 		prop.setProperty("password", password);
-		prop.setProperty("port", port.toString());
+		prop.setProperty("port", port);
+        prop.setProperty("folder_size(MB)", folderSize);
 
-		try {
-			if (!new File("server.properties").exists()) {
-				prop.store(new FileOutputStream("server.properties"), null);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            prop.store(new FileOutputStream("server.properties"), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 		return true;
 	}
 
