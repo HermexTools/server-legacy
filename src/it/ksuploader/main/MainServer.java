@@ -2,15 +2,19 @@ package it.ksuploader.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 
 public class MainServer {
 
 	private ServerSocketChannel serverSocketChannel;
 	public static LoadConfig config = new LoadConfig();
 	private static MainServer instance;
+    public static PrintWriter logger;
+    
 
 	public static MainServer getInstance() {
 		return instance;
@@ -34,15 +38,39 @@ public class MainServer {
 			log("----------");
 		} catch (IOException exc) {
 			exc.printStackTrace();
+            err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
 			throw new IllegalArgumentException("Can't init serverSocket!");
 		}
 	}
+    
+    private void start() {
+        
+        while (true)
+            try {
+                SocketChannel clientSocket = serverSocketChannel.accept();
+                RequestHandler requestHandler = new RequestHandler(clientSocket);
+                new Thread(requestHandler).start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                err(Arrays.toString(e.getStackTrace()).replace(",", "\n"));
+            }
+    }
+    
+    public void stop() {
+        log("Server stopped!");
+    }
 
 	final static void log(String toPrint) {
 		System.out.println(toPrint);
+        logger.println(toPrint);
 	}
+    
+    final static void err(String s){
+        logger.println(s);    
+    }
 
 	public static void main(String[] args) throws Exception {
+        logger = new PrintWriter("log.txt");
 		log("----------");
 		log("Bootstrap...");
 
@@ -76,21 +104,4 @@ public class MainServer {
 		new MainServer().start();
 
 	}
-
-	private void start() {
-
-		while (true)
-			try {
-				SocketChannel clientSocket = serverSocketChannel.accept();
-				RequestHandler requestHandler = new RequestHandler(clientSocket);
-				new Thread(requestHandler).start();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
-
-	public void stop() {
-		log("Server stopped!");
-	}
-
 }

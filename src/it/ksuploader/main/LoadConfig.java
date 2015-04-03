@@ -1,10 +1,12 @@
 package it.ksuploader.main;
 
+import static it.ksuploader.main.MainServer.err;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class LoadConfig {
@@ -42,11 +44,13 @@ public class LoadConfig {
             
         } catch (IOException ex) {
             ex.printStackTrace();
+            err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
         } finally {
             try {
                 inputStream.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
+                err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
             }
         }
     }
@@ -90,6 +94,7 @@ public class LoadConfig {
             prop.store(new FileOutputStream("server.properties"), null);
         } catch (Exception e) {
             e.printStackTrace();
+            err(Arrays.toString(e.getStackTrace()).replace(",", "\n"));
         }
 		return true;
 	}

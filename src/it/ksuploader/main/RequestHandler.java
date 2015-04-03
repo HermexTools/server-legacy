@@ -1,5 +1,6 @@
 package it.ksuploader.main;
 
+import static it.ksuploader.main.MainServer.err;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -124,6 +126,7 @@ public class RequestHandler implements Runnable {
             
         } catch (Exception exc) {
             exc.printStackTrace();
+            MainServer.err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
         }
         MainServer.log("----------");
     }
@@ -167,6 +170,7 @@ public class RequestHandler implements Runnable {
             
         } catch (IOException ex) {
             ex.printStackTrace();
+            MainServer.err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
         }
         return "OK";
     }
@@ -188,6 +192,7 @@ public class RequestHandler implements Runnable {
             }  
         } catch (IOException ex) {
             ex.printStackTrace();
+            MainServer.err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
         }
         return "OK";
     }
