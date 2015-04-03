@@ -63,10 +63,12 @@ public class MainServer {
 	final static void log(String toPrint) {
 		System.out.println(toPrint);
         logger.println(toPrint);
+        logger.flush();
 	}
     
     final static void err(String s){
-        logger.println(s);    
+        logger.println(s); 
+        logger.flush();
     }
 
 	public static void main(String[] args) throws Exception {
