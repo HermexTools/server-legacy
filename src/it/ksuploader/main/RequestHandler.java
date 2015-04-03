@@ -125,7 +125,7 @@ public class RequestHandler implements Runnable {
         } catch (Exception exc) {
             exc.printStackTrace();
         }
-        System.out.println("----------");
+        MainServer.log("----------");
     }
     
     private String readFileFromSocket(String fileName) {
@@ -149,7 +149,7 @@ public class RequestHandler implements Runnable {
                     
                     MainServer.log("End of file reached, closing channel");
                     if(fileLength !=  new File(fileName).length()){
-                        System.out.println("File invalid, deleting...");
+                        MainServer.log("File invalid, deleting...");
                         new File(fileName).delete();
                     }
                     
