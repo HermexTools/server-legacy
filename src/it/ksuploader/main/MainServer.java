@@ -1,5 +1,7 @@
 package it.ksuploader.main;
 
+import it.ksuploader.utils.LoadConfig;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,8 +15,7 @@ public class MainServer {
 	private ServerSocketChannel serverSocketChannel;
 	public static LoadConfig config = new LoadConfig();
 	private static MainServer instance;
-    public static PrintWriter logger;
-    
+	public static PrintWriter logger;
 
 	public static MainServer getInstance() {
 		return instance;
@@ -38,64 +39,65 @@ public class MainServer {
 			log("----------");
 		} catch (IOException exc) {
 			exc.printStackTrace();
-            err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
+			err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
 			throw new IllegalArgumentException("Can't init serverSocket!");
 		}
 	}
-    
-    private void start() {
-        
-        while (true)
-            try {
-                SocketChannel clientSocket = serverSocketChannel.accept();
-                RequestHandler requestHandler = new RequestHandler(clientSocket);
-                new Thread(requestHandler).start();
-            } catch (IOException e) {
-                e.printStackTrace();
-                err(Arrays.toString(e.getStackTrace()).replace(",", "\n"));
-            }
-    }
-    
-    public void stop() {
-        log("Server stopped!");
-    }
+
+	private void start() {
+
+		while (true)
+			try {
+				SocketChannel clientSocket = serverSocketChannel.accept();
+				RequestHandler requestHandler = new RequestHandler(clientSocket);
+				new Thread(requestHandler).start();
+			} catch (IOException e) {
+				e.printStackTrace();
+				err(Arrays.toString(e.getStackTrace()).replace(",", "\n"));
+			}
+	}
+
+	public void stop() {
+		log("Server stopped!");
+	}
 
 	final static void log(String toPrint) {
 		System.out.println(toPrint);
-        logger.println(toPrint);
-        logger.flush();
+		logger.println(toPrint);
+		logger.flush();
 	}
-    
-    final static void err(String s){
-        logger.println(s); 
-        logger.flush();
-    }
+
+	public final static void err(String s) {
+		logger.println(s);
+		logger.flush();
+	}
 
 	public static void main(String[] args) throws Exception {
-        logger = new PrintWriter("log.txt");
+		logger = new PrintWriter("log.txt");
 		log("----------");
 		log("Bootstrap...");
 
 		// if (!Constants.OWP_DIR.exists())
 		// Constants.OWP_DIR.mkdirs();
 
-
 		if (args.length != 0) {
 			if (args.length == 6) {
 				config.changeConfig(args[0], args[1], args[2], args[3], args[4], args[5]);
-                log("Restart for load the new config...");
+				log("Restart for load the new config...");
 			} else
-				throw new IllegalArgumentException("Correct args are: folder, web_url, pass, port, folder size, max file size");
+				throw new IllegalArgumentException(
+						"Correct args are: folder, web_url, pass, port, folder size, max file size");
 		} else {
-			if (config.getFolder().equals("") || config.getPass().equals("") || Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals(""))
+			if (config.getFolder().equals("") || config.getPass().equals("")
+					|| Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals(""))
 				throw new Exception("Error reading config properties.");
 			else {
 				log("Folder: " + config.getFolder());
-                log("Folder Max size: " + config.getFolderSize());
-                log("Max file size: "+config.getMaxFileSize());
+				log("Folder Max size: " + config.getFolderSize());
+				log("Max file size: " + config.getMaxFileSize());
 				log("WebUrl: " + config.getWebUrl());
 				log("Pass: " + config.getPass());
-				log("Port: " + config.getPort()); 
+				log("Port: " + config.getPort());
 			}
 		}
 
