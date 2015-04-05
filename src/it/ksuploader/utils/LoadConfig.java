@@ -35,47 +35,52 @@ public class LoadConfig {
 			boolean correct_config = false;
 
 			// Server address
-			if ((this.folder = prop.getProperty("folder")) == null || prop.getProperty("folder").isEmpty()) {
+			if (prop.getProperty("folder") == null || prop.getProperty("folder").isEmpty()) {
 				prop.setProperty("folder", "files");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default folder");
 			}
+			this.folder = prop.getProperty("folder");
 
-			if ((this.web_url = prop.getProperty("web_url")) == null || prop.getProperty("web_url").isEmpty()) {
+			// Web url
+			if (prop.getProperty("web_url") == null || prop.getProperty("web_url").isEmpty()) {
 				prop.setProperty("web_url", "http://domain.com/");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default web_url");
 			}
+			this.web_url = prop.getProperty("web_url");
 
-			if ((this.pass = prop.getProperty("password")) == null || prop.getProperty("password").isEmpty()) {
+			// Password
+			if (prop.getProperty("password") == null || prop.getProperty("password").isEmpty()) {
 				prop.setProperty("password", "pass");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default password");
 			}
+			this.pass = prop.getProperty("password");
 
+			// Port
 			if (prop.getProperty("port") == null || prop.getProperty("port").isEmpty()) {
 				prop.setProperty("port", "4030");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default port");
-			} else {
-				this.port = Integer.parseInt(prop.getProperty("port"));
 			}
+			this.port = Integer.parseInt(prop.getProperty("port"));
 
+			// Folder size
 			if (prop.getProperty("folder_size(MB)") == null || prop.getProperty("folder_size(MB)").isEmpty()) {
 				prop.setProperty("folder_size(MB)", "4096");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default folder_size(MB)");
-			} else {
-				this.folderSize = Long.parseLong(prop.getProperty("folder_size(MB)")) * 1048576;
 			}
+			this.folderSize = Long.parseLong(prop.getProperty("folder_size(MB)")) * 1048576;
 
+			// File size
 			if (prop.getProperty("max_file_size(MB)") == null || prop.getProperty("max_file_size(MB)").isEmpty()) {
 				prop.setProperty("max_file_size(MB)", "512");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default max_file_size(MB)");
-			} else {
-				this.maxFileSize = Long.parseLong(prop.getProperty("max_file_size(MB)")) * 1048576;
 			}
+			this.maxFileSize = Long.parseLong(prop.getProperty("max_file_size(MB)")) * 1048576;
 
 			if (correct_config)
 				prop.store(new FileOutputStream("server.properties"), null);
