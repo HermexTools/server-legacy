@@ -25,8 +25,6 @@ public class RequestHandler implements Runnable {
 	public void run() {
 
 		try {
-
-			// socketChannel.socket().setSoTimeout(10000);
 			MainServer.log("Client connected from: " + socketChannel);
 
 			// Ricevo
@@ -60,12 +58,6 @@ public class RequestHandler implements Runnable {
 				switch (type) {
 
 				case "img":
-
-					// transfer image
-					// returnValue =
-					// readImageFromSocket(MainServer.config.getFolder() + "/" +
-					// fileName + ".png");
-
 					// transfer image
 					MainServer.log("Transfer started.");
 					returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".png");
