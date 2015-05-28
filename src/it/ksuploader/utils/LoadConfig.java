@@ -2,15 +2,11 @@ package it.ksuploader.utils;
 
 import it.ksuploader.main.MainServer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Properties;
 
-public class LoadConfig {
+public class LoadConfig extends Properties {
 
 	private String folder;
 	private String web_url;
@@ -20,81 +16,73 @@ public class LoadConfig {
 	private int port;
 
 	public LoadConfig() {
-		InputStream inputStream = null;
+		InputStream inputStream;
 		try {
-			Properties prop = new Properties();
 
 			if (!new File("server.properties").exists()) {
-				prop.store(new FileOutputStream("server.properties"), null);
+				this.store(new FileOutputStream("server.properties"), null);
 			}
 
 			inputStream = new FileInputStream("server.properties");
-			prop.load(inputStream);
+			this.load(inputStream);
 			inputStream.close();
 
 			boolean correct_config = false;
 
 			// Server address
-			if (prop.getProperty("folder") == null || prop.getProperty("folder").isEmpty()) {
-				prop.setProperty("folder", "files");
+			if (this.getProperty("folder") == null || this.getProperty("folder").isEmpty()) {
+				this.setProperty("folder", "files");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default folder");
 			}
-			this.folder = prop.getProperty("folder");
+			this.folder = this.getProperty("folder");
 
 			// Web url
-			if (prop.getProperty("web_url") == null || prop.getProperty("web_url").isEmpty()) {
-				prop.setProperty("web_url", "http://domain.com/");
+			if (this.getProperty("web_url") == null || this.getProperty("web_url").isEmpty()) {
+				this.setProperty("web_url", "http://domain.com/");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default web_url");
 			}
-			this.web_url = prop.getProperty("web_url");
+			this.web_url = this.getProperty("web_url");
 
 			// Password
-			if (prop.getProperty("password") == null || prop.getProperty("password").isEmpty()) {
-				prop.setProperty("password", "pass");
+			if (this.getProperty("password") == null || this.getProperty("password").isEmpty()) {
+				this.setProperty("password", "pass");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default password");
 			}
-			this.pass = prop.getProperty("password");
+			this.pass = this.getProperty("password");
 
 			// Port
-			if (prop.getProperty("port") == null || prop.getProperty("port").isEmpty()) {
-				prop.setProperty("port", "4030");
+			if (this.getProperty("port") == null || this.getProperty("port").isEmpty()) {
+				this.setProperty("port", "4030");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default port");
 			}
-			this.port = Integer.parseInt(prop.getProperty("port"));
+			this.port = Integer.parseInt(this.getProperty("port"));
 
 			// Folder size
-			if (prop.getProperty("folder_size(MB)") == null || prop.getProperty("folder_size(MB)").isEmpty()) {
-				prop.setProperty("folder_size(MB)", "4096");
+			if (this.getProperty("folder_size(MB)") == null || this.getProperty("folder_size(MB)").isEmpty()) {
+				this.setProperty("folder_size(MB)", "4096");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default folder_size(MB)");
 			}
-			this.folderSize = Long.parseLong(prop.getProperty("folder_size(MB)")) * 1048576;
+			this.folderSize = Long.parseLong(this.getProperty("folder_size(MB)")) * 1048576;
 
 			// File size
-			if (prop.getProperty("max_file_size(MB)") == null || prop.getProperty("max_file_size(MB)").isEmpty()) {
-				prop.setProperty("max_file_size(MB)", "512");
+			if (this.getProperty("max_file_size(MB)") == null || this.getProperty("max_file_size(MB)").isEmpty()) {
+				this.setProperty("max_file_size(MB)", "512");
 				correct_config = true;
 				System.out.println("[LoadConfig] Setting default max_file_size(MB)");
 			}
-			this.maxFileSize = Long.parseLong(prop.getProperty("max_file_size(MB)")) * 1048576;
+			this.maxFileSize = Long.parseLong(this.getProperty("max_file_size(MB)")) * 1048576;
 
 			if (correct_config)
-				prop.store(new FileOutputStream("server.properties"), null);
+				this.store(new FileOutputStream("server.properties"), null);
 
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			MainServer.err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
-		} finally {
-			try {
-				inputStream.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				MainServer.err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
-			}
 		}
 	}
 

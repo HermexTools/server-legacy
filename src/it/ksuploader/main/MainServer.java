@@ -61,13 +61,13 @@ public class MainServer {
 		log("Server stopped!");
 	}
 
-	final static void log(String toPrint) {
+	static void log(String toPrint) {
 		System.out.println(toPrint);
 		logger.println(toPrint);
 		logger.flush();
 	}
 
-	public final static void err(String s) {
+	public static void err(String s) {
 		logger.println(s);
 		logger.flush();
 	}
@@ -102,7 +102,7 @@ public class MainServer {
 		}
 
 		// Controllo se esiste la directory dei file
-		if (new File("./" + config.getFolder()).exists() == false)
+		if (!new File("./" + config.getFolder()).exists())
 			new File("./" + config.getFolder()).mkdir();
 
 		new MainServer().start();

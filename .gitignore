@@ -37,3 +37,8 @@ nbproject/
 build.xml
 manifest.mf
 server.properties
+
+#jetbrains
+out/
+.idea/
+*.iml
