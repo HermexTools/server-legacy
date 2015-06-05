@@ -11,7 +11,7 @@ public class RequestHandler implements Runnable {
 	private SocketChannel socketChannel;
 	private DataInputStream dis;
 	private DataOutputStream dos;
-	private String type = null;
+	private String type;
 
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
@@ -172,23 +172,16 @@ public class RequestHandler implements Runnable {
 	}
 
 	private String returnUrl(String fileName, String type) {
-		String urlToReturn = "";
 		switch (type) {
-
 		case "img":
-			urlToReturn = MainServer.config.getWebUrl() + fileName + ".png";
-			break;
+			return MainServer.config.getWebUrl() + fileName + ".png";
 		case "file":
-			urlToReturn = MainServer.config.getWebUrl() + fileName + ".zip";
-			break;
+			return MainServer.config.getWebUrl() + fileName + ".zip";
 		case "txt":
-			urlToReturn = MainServer.config.getWebUrl() + fileName + ".txt";
-			break;
+			return MainServer.config.getWebUrl() + fileName + ".txt";
 		default:
-			break;
+			return null;
 		}
-
-		return urlToReturn;
 	}
 
 }

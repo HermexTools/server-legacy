@@ -112,16 +112,15 @@ public class LoadConfig extends Properties {
 
 	public boolean changeConfig(String folder, String web_url, String password, String port, String folderSize,
 			String maxFileSize) {
-		Properties prop = new Properties();
-		prop.setProperty("folder", folder);
-		prop.setProperty("web_url", web_url);
-		prop.setProperty("password", password);
-		prop.setProperty("port", port);
-		prop.setProperty("folder_size(MB)", folderSize);
-		prop.setProperty("max_file_size(MB)", maxFileSize);
+		this.setProperty("folder", folder);
+		this.setProperty("web_url", web_url);
+		this.setProperty("password", password);
+		this.setProperty("port", port);
+		this.setProperty("folder_size(MB)", folderSize);
+		this.setProperty("max_file_size(MB)", maxFileSize);
 
 		try {
-			prop.store(new FileOutputStream("server.properties"), null);
+			this.store(new FileOutputStream("server.properties"), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			MainServer.err(Arrays.toString(e.getStackTrace()).replace(",", "\n"));
