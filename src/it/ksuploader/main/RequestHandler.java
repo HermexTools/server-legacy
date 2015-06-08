@@ -11,7 +11,6 @@ public class RequestHandler implements Runnable {
 	private SocketChannel socketChannel;
 	private DataInputStream dis;
 	private DataOutputStream dos;
-	private String type;
 
 	public RequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
@@ -42,7 +41,7 @@ public class RequestHandler implements Runnable {
 				MainServer.log("Client Authenticated");
 
 				// Aspetto e leggo il type
-				type = dis.readUTF();
+				String type = dis.readUTF();
 				MainServer.log("fileType: " + type);
 
 				// Informo il client della ricezione e così parte l'upload

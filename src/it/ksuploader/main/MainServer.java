@@ -14,12 +14,8 @@ public class MainServer {
 
 	private ServerSocketChannel serverSocketChannel;
 	public static LoadConfig config = new LoadConfig();
-	private static MainServer instance;
 	public static PrintWriter logger;
 
-	public static MainServer getInstance() {
-		return instance;
-	}
 
 	// SocketChannel socketChannel = null;
 	// ServerSocketChannel serverSocketChannel = null;
@@ -57,9 +53,6 @@ public class MainServer {
 			}
 	}
 
-	public void stop() {
-		log("Server stopped!");
-	}
 
 	static void log(String toPrint) {
 		System.out.println(toPrint);
