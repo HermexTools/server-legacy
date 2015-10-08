@@ -30,6 +30,8 @@ public class MainServer {
         logger.addHandler(fh);
         logger.setUseParentHandlers(false);
         System.out.println("--------------------------------------------------------------------------------");
+        System.out.println("                               KSUploader Server                                ");
+        System.out.println("--------------------------------------------------------------------------------");
         log("Bootstrap...");
 
         if (args.length != 0) {
@@ -40,8 +42,7 @@ public class MainServer {
                 throw new IllegalArgumentException("Correct args are: folder, web_url, pass, port, folder size, max file size");
             }
         } else {
-            if (config.getFolder().equals("") || config.getPass().equals("")
-                    || Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals("")) {
+            if (config.getFolder().equals("") || config.getPass().equals("") || Integer.toString(config.getPort()).equals("") || config.getWebUrl().equals("")) {
                 throw new Exception("Error reading config properties.");
             } else {
                 log("Folder: " + config.getFolder());

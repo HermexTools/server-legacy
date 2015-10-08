@@ -110,8 +110,7 @@ public class LoadConfig extends Properties {
         return maxFileSize;
     }
 
-    public boolean changeConfig(String folder, String web_url, String password, String port, String folderSize,
-                                String maxFileSize) {
+    public boolean changeConfig(String folder, String web_url, String password, String port, String folderSize, String maxFileSize) {
         this.setProperty("folder", folder);
         this.setProperty("web_url", web_url);
         this.setProperty("password", password);
