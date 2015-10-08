@@ -6,7 +6,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Random;
 
-public class RequestHandler implements Runnable {
+public class RequestHandler extends Thread {
 
 	private SocketChannel socketChannel;
 	private DataInputStream dis;
@@ -17,6 +17,7 @@ public class RequestHandler implements Runnable {
 		MainServer.log("RequestHandler initialized");
 	}
 
+	@Override
 	public void run() {
 
 		try {
@@ -40,12 +41,8 @@ public class RequestHandler implements Runnable {
 				dos.writeUTF("OK");
 				MainServer.log("Client Authenticated");
 
-				// Aspetto e leggo il type
 				String type = dis.readUTF();
 				MainServer.log("fileType: " + type);
-
-				// Informo il client della ricezione e così parte l'upload
-				dos.writeUTF(type);
 
 				String fileName = System.currentTimeMillis() / 1000 + "" + new Random().nextInt(999);
 				MainServer.log("fileName: " + fileName);
@@ -55,7 +52,7 @@ public class RequestHandler implements Runnable {
 				case "img":
 					// transfer image
 					MainServer.log("Transfer started.");
-					returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".png");
+					returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".png");
 					MainServer.log("Transfer ended.");
 
 					if (returnValue.equals("OK")) {
@@ -69,7 +66,7 @@ public class RequestHandler implements Runnable {
 
 					// transfer file
 					MainServer.log("Transfer started.");
-					returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".zip");
+					returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".zip");
 					MainServer.log("Transfer ended.");
 
 					if (returnValue.equals("OK")) {
@@ -83,7 +80,7 @@ public class RequestHandler implements Runnable {
 
 					// transfer a txt
 					MainServer.log("Transfer started.");
-					returnValue = readFileFromSocket(MainServer.config.getFolder() + "/" + fileName + ".txt");
+					returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".txt");
 					MainServer.log("Transfer ended.");
 
 					if (returnValue.equals("OK")) {
@@ -94,33 +91,33 @@ public class RequestHandler implements Runnable {
 					break;
 
 				default:
+					dos.writeUTF("FILE_NOT_RECOGNIZED");
 					MainServer.log("File type not recognized!");
 				}
 
 				MainServer.log("Closing..");
+				dos.flush();
 				dos.close();
 				dis.close();
 			} else {
 				dos.writeUTF("WRONG_PASS");
 				MainServer.log("Invalid Id or Password");
+				dos.flush();
 				dos.close();
 				dis.close();
 			}
-
 			socketChannel.close();
 
 		} catch (Exception exc) {
 			exc.printStackTrace();
 			MainServer.err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
 		}
-		MainServer.log("----------");
+		System.out.println("--------------------------------------------------------------------------------");
 	}
 
-	private String readFileFromSocket(String fileName) {
+	private String readFromSocket(String fileName) {
 		try {
 			RandomAccessFile aFile = new RandomAccessFile(fileName, "rw");
-			FileChannel fileChannel = aFile.getChannel();
-
 			long fileLength = dis.readLong();
 
 			if (fileLength + folderSize() <= MainServer.config.getFolderSize()) {
@@ -129,6 +126,7 @@ public class RequestHandler implements Runnable {
 
 					MainServer.log("File length: " + fileLength);
 
+					FileChannel fileChannel = aFile.getChannel();
 					fileChannel.transferFrom(socketChannel, 0, fileLength);
 					fileChannel.close();
 					aFile.close();
@@ -160,7 +158,7 @@ public class RequestHandler implements Runnable {
 		return "OK";
 	}
 
-	public long folderSize() {
+	private long folderSize() {
 		File dir = new File(MainServer.config.getFolder());
 		long length = 0;
 		for (File file : dir.listFiles()) {
@@ -179,7 +177,7 @@ public class RequestHandler implements Runnable {
 		case "txt":
 			return MainServer.config.getWebUrl() + fileName + ".txt";
 		default:
-			return null;
+			return "ERROR_URL_BUILDING";
 		}
 	}
 
