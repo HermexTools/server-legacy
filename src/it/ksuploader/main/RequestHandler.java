@@ -3,182 +3,167 @@ package it.ksuploader.main;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class RequestHandler extends Thread {
+class RequestHandler extends Thread {
 
-    private SocketChannel socketChannel;
-    private DataInputStream dis;
-    private DataOutputStream dos;
+	private Logger logger = KSUploaderServer.logger;
 
-    public RequestHandler(SocketChannel socketChannel) {
-        this.socketChannel = socketChannel;
-        MainServer.log("RequestHandler initialized");
-    }
+	private SocketChannel socketChannel;
+	private DataInputStream input;
+	private DataOutputStream output;
 
-    @Override
-    public void run() {
+	private final static HashMap<String, String> acceptedTypes = new HashMap<>();
 
-        try {
-            MainServer.log("Client connected from: " + socketChannel);
+	static {
+		acceptedTypes.put("img", ".png");
+		acceptedTypes.put("file", ".zip");
+		acceptedTypes.put("txt", ".txt");
+	}
 
-            // Ricevo
-            dis = new DataInputStream(socketChannel.socket().getInputStream());
+	private enum Messages {
+		OK,
+		BAD_SYN_STRING,
+		WRONG_PASSWORD,
+		FILE_NOT_RECOGNIZED,
+		FILE_TOO_LARGE,
+		SERVER_FULL,
+		UNKNOWN_ERROR
+	}
 
-            // Invio al client
-            dos = new DataOutputStream(socketChannel.socket().getOutputStream());
+	RequestHandler(SocketChannel socketChannel) {
+		this.socketChannel = socketChannel;
+		this.logger.log(Level.INFO, "RequestHandler initialized");
+	}
 
-            // leggo in ricezione
-            MainServer.log("Waiting authentication");
-            String auth = dis.readUTF();
+	@Override
+	public void run() {
 
-            // check auth
-            MainServer.log("Auth received: " + auth);
+		try {
+			this.logger.log(Level.FINE, "Client connected (" + socketChannel.getRemoteAddress() + ")");
 
-            String pass = MainServer.config.getPass();
-            if (pass.equals(auth)) {
-                dos.writeUTF("OK");
-                MainServer.log("Client Authenticated");
+			// get streams
+			this.input = new DataInputStream(socketChannel.socket().getInputStream());
+			this.output = new DataOutputStream(socketChannel.socket().getOutputStream());
 
-                String type = dis.readUTF();
-                MainServer.log("fileType: " + type);
+			// Syn string (password|fileLength|fileType)
+			this.logger.log(Level.INFO, "Waiting SYN");
+			String synInfo[] = input.readUTF().split("\\|");
 
-                String fileName = System.currentTimeMillis() / 1000 + "" + new Random().nextInt(999);
-                MainServer.log("fileName: " + fileName);
-                String returnValue;
-                switch (type) {
+			// check correct SYN
+			if (synInfo.length != 3) {
+				logger.log(Level.SEVERE, "Bad syn string, missing SYN arguments");
+				this.output.writeUTF(Messages.BAD_SYN_STRING.name());
+				this.close();
+				return;
+			}
 
-                    case "img":
-                        // transfer image
-                        MainServer.log("Transfer started.");
-                        returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".png");
-                        MainServer.log("Transfer ended.");
+			this.logger.log(Level.INFO, "Auth received: " + synInfo[0]);
+			this.logger.log(Level.INFO, "File length: " + synInfo[1]);
+			this.logger.log(Level.INFO, "File type: " + synInfo[2]);
 
-                        if (returnValue.equals("OK")) {
-                            MainServer.log("Sending link...");
-                            dos.writeUTF(returnUrl(fileName, type));
-                        }
+			// start controls
+			String auth = synInfo[0];
+			long flength = Long.parseLong(synInfo[1]);
+			String ftype = synInfo[2];
 
-                        break;
+			// check password
+			if (!KSUploaderServer.config.getPass().equals(auth)) {
+				logger.log(Level.INFO, "Client wrong password");
+				this.output.writeUTF(Messages.WRONG_PASSWORD.name());
+				this.close();
+				return;
+			}
 
-                    case "file":
+			// check file length
+			if (flength > KSUploaderServer.config.getMaxFileSize()) {
+				logger.log(Level.INFO, "Incoming file too large");
+				this.output.writeUTF(Messages.FILE_TOO_LARGE.name());
+				this.close();
+				return;
+			}
 
-                        // transfer file
-                        MainServer.log("Transfer started.");
-                        returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".zip");
-                        MainServer.log("Transfer ended.");
+			if (this.folderSize() + flength >= KSUploaderServer.config.getFolderSize()) {
+				logger.log(Level.WARNING, "Server full");
+				this.output.writeUTF(Messages.SERVER_FULL.name());
+				this.close();
+				return;
+			}
 
-                        if (returnValue.equals("OK")) {
-                            MainServer.log("Sending link...");
-                            dos.writeUTF(returnUrl(fileName, type));
-                        }
+			if (!acceptedTypes.containsKey(ftype)) {
+				logger.log(Level.INFO, "Incoming file not recognized");
+				this.output.writeUTF(Messages.FILE_NOT_RECOGNIZED.name());
+				this.close();
+				return;
+			}
 
-                        break;
+			this.output.writeUTF(Messages.OK.name());
 
-                    case "txt":
+			// set file name
+			String fileName = new SimpleDateFormat("EEE-MMM-yyyy-hh-mm-ss-SSS").format(Calendar.getInstance().getTime());
+			fileName = fileName + "-" + new Random().nextInt(999999);
 
-                        // transfer a txt
-                        MainServer.log("Transfer started.");
-                        returnValue = readFromSocket(MainServer.config.getFolder() + File.separator + fileName + ".txt");
-                        MainServer.log("Transfer ended.");
+			this.logger.log(Level.FINE, "Transfer started.");
 
-                        if (returnValue.equals("OK")) {
-                            MainServer.log("Sending link...");
-                            dos.writeUTF(returnUrl(fileName, type));
-                        }
+			// set file format
+			String format = acceptedTypes.get(ftype);
 
-                        break;
+			boolean ret = readFromSocket(new File(KSUploaderServer.config.getFolder() + File.separator + fileName + format), flength);
 
-                    default:
-                        dos.writeUTF("FILE_NOT_RECOGNIZED");
-                        MainServer.log("File type not recognized!");
-                }
+			this.logger.log(Level.FINE, "Transfer Ended.");
 
-                MainServer.log("Closing..");
-                dos.flush();
-                dos.close();
-                dis.close();
-            } else {
-                dos.writeUTF("WRONG_PASS");
-                MainServer.log("Invalid Id or Password");
-                dos.flush();
-                dos.close();
-                dis.close();
-            }
-            socketChannel.close();
+			// return URL
+			if (ret) {
+				this.output.writeUTF(KSUploaderServer.config.getWebUrl() + fileName + format);
+			} else {
+				this.output.writeUTF(Messages.UNKNOWN_ERROR.name());
+			}
+			this.close();
 
-        } catch (Exception exc) {
-            exc.printStackTrace();
-            MainServer.err(Arrays.toString(exc.getStackTrace()).replace(",", "\n"));
-        }
-        System.out.println("--------------------------------------------------------------------------------");
-    }
+		} catch (Exception e) {
+			this.logger.log(Level.SEVERE, "Something went wrong", e);
+		}
+	}
 
-    private String readFromSocket(String fileName) {
-        try {
-            RandomAccessFile aFile = new RandomAccessFile(fileName, "rw");
-            long fileLength = dis.readLong();
+	private boolean readFromSocket(File fileName, long fileLength) {
+		try {
+			RandomAccessFile aFile = new RandomAccessFile(fileName, "rw");
 
-            if (fileLength + folderSize() <= MainServer.config.getFolderSize()) {
-                if (fileLength <= MainServer.config.getMaxFileSize()) {
-                    dos.writeUTF("START_TRANSFER");
+			FileChannel fileChannel = aFile.getChannel();
+			fileChannel.transferFrom(socketChannel, 0, fileLength);
+			fileChannel.close();
+			aFile.close();
 
-                    MainServer.log("File length: " + fileLength);
+		} catch (IOException e) {
+			this.logger.log(Level.WARNING, "IOException in readfromsocket", e);
+			return false;
+		}
+		return true;
+	}
 
-                    FileChannel fileChannel = aFile.getChannel();
-                    fileChannel.transferFrom(socketChannel, 0, fileLength);
-                    fileChannel.close();
-                    aFile.close();
+	private long folderSize() {
+		File dir = new File(KSUploaderServer.config.getFolder());
+		long length = 0;
+		for (File file : dir.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+		}
+		return length;
+	}
 
-                    MainServer.log("End of file reached, closing channel");
-                    if (fileLength != new File(fileName).length()) {
-                        MainServer.log("File invalid, deleting...");
-                        new File(fileName).delete();
-                    }
-
-                } else {
-                    MainServer.log("File too large!");
-                    aFile.close();
-                    dos.writeUTF("FILE_TOO_LARGE");
-                    return "FILE_TOO_LARGE";
-                }
-
-            } else {
-                MainServer.log("Server full !");
-                aFile.close();
-                dos.writeUTF("SERVER_FULL");
-                return "SERVER_FULL";
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            MainServer.err(Arrays.toString(ex.getStackTrace()).replace(",", "\n"));
-        }
-        return "OK";
-    }
-
-    private long folderSize() {
-        File dir = new File(MainServer.config.getFolder());
-        long length = 0;
-        for (File file : dir.listFiles()) {
-            if (file.isFile())
-                length += file.length();
-        }
-        return length;
-    }
-
-    private String returnUrl(String fileName, String type) {
-        switch (type) {
-            case "img":
-                return MainServer.config.getWebUrl() + fileName + ".png";
-            case "file":
-                return MainServer.config.getWebUrl() + fileName + ".zip";
-            case "txt":
-                return MainServer.config.getWebUrl() + fileName + ".txt";
-            default:
-                return "ERROR_URL_BUILDING";
-        }
-    }
-
+	private void close() {
+		try {
+			output.close();
+			input.close();
+			socketChannel.close();
+		} catch (IOException e) {
+			// no real need, later thread dies
+			logger.log(Level.WARNING, "Exception during streams closes", e);
+		}
+	}
 }
