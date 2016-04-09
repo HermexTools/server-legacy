@@ -41,7 +41,6 @@ public class Listener extends Thread {
 		while (this.listen) {
 			try {
 				new RequestHandler(this.serverSocketChannel.accept()).start();
-				System.out.println("--------------------------------------------------------------------------------");
 			} catch (IOException e) {
 				this.logger.log(Level.WARNING, "Error during handling request", e);
 			}

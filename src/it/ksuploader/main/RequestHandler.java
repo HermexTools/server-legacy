@@ -51,9 +51,9 @@ class RequestHandler extends Thread {
 			this.input = new DataInputStream(socketChannel.socket().getInputStream());
 			this.output = new DataOutputStream(socketChannel.socket().getOutputStream());
 
-			// Syn string (password|fileLength|fileType)
+			// Syn string (password&fileLength&fileType)
 			this.logger.log(Level.INFO, "Waiting SYN");
-			String synInfo[] = input.readUTF().split("\\|");
+			String synInfo[] = input.readUTF().split("&");
 
 			// check correct SYN
 			if (synInfo.length != 3) {
@@ -105,8 +105,8 @@ class RequestHandler extends Thread {
 			this.output.writeUTF(Messages.OK.name());
 
 			// set file name
-			String fileName = new SimpleDateFormat("EEE-MMM-yyyy-hh-mm-ss-SSS").format(Calendar.getInstance().getTime());
-			fileName = fileName + "-" + new Random().nextInt(999999);
+			String fileName = new SimpleDateFormat("ddMMyy-HHmmssSS").format(Calendar.getInstance().getTime());
+			fileName = new Random().nextInt(9999) + "-" + fileName;
 
 			this.logger.log(Level.FINE, "Transfer started.");
 
@@ -115,11 +115,12 @@ class RequestHandler extends Thread {
 
 			boolean ret = readFromSocket(new File(KSUploaderServer.config.getFolder() + File.separator + fileName + format), flength);
 
-			this.logger.log(Level.FINE, "Transfer Ended.");
+			this.logger.log(Level.FINE, "Transfer ended.");
 
 			// return URL
 			if (ret) {
 				this.output.writeUTF(KSUploaderServer.config.getWebUrl() + fileName + format);
+				this.logger.log(Level.FINE, "Returned link -> " + KSUploaderServer.config.getWebUrl() + fileName + format);
 			} else {
 				this.output.writeUTF(Messages.UNKNOWN_ERROR.name());
 			}

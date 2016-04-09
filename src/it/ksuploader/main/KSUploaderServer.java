@@ -23,6 +23,7 @@ public class KSUploaderServer {
 			FileHandler loggerFileHandler = new FileHandler("./KSULog.txt", 10000000, 1, true);
 			loggerFileHandler.setFormatter(new LogFormatter());
 			loggerFileHandler.setLevel(Level.FINEST);
+			logger.setUseParentHandlers(false);
 
 			logger.addHandler(loggerFileHandler);
 
@@ -88,10 +89,9 @@ public class KSUploaderServer {
 		} else {
 			if (
 					KSUploaderServer.config.getFolder().equals("") ||
-					KSUploaderServer.config.getPass().equals("") ||
-					Integer.toString(KSUploaderServer.config.getPort()).equals("") ||
-					KSUploaderServer.config.getWebUrl().equals(""))
-			{
+							KSUploaderServer.config.getPass().equals("") ||
+							Integer.toString(KSUploaderServer.config.getPort()).equals("") ||
+							KSUploaderServer.config.getWebUrl().equals("")) {
 				throw new Exception("Error reading config properties.");
 			} else {
 				System.out.println("Password: " + KSUploaderServer.config.getPass());
@@ -107,12 +107,31 @@ public class KSUploaderServer {
 	private static void console() {
 		String cmd = "";
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		while (!cmd.equals("stop")) {
+		while (!cmd.equals("shutdown")) {
 			try {
 				cmd = in.readLine();
 				switch (cmd.split(" ")[0]) {
-					case "changepassword":
-						config.setPass(cmd.split(" ")[1]);
+					case "change-password":
+						if (config.setPass(cmd.split(" ")[1])) {
+							System.out.println("Password changed.");
+						} else {
+							System.out.println("Error.");
+						}
+						break;
+					case "get-password":
+						System.out.println(config.getPass());
+						break;
+					case "help":
+					case "?":
+						System.out.println("change-password <pass> - Change the server password");
+						System.out.println("get-password - Print current password");
+						System.out.println("shutdown - Stop the server");
+						break;
+					case "shutdown":
+						System.out.println("Shutting down...");
+						break;
+					default:
+						System.out.println("Invalid command.");
 						break;
 				}
 			} catch (IOException e) {
