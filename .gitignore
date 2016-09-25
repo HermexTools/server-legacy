@@ -37,6 +37,7 @@ nbproject/
 build.xml
 manifest.mf
 server.properties
+files/
 
 #jetbrains
 out/

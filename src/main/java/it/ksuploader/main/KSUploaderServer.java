@@ -1,45 +1,25 @@
 package it.ksuploader.main;
 
-import it.ksuploader.utils.Config;
-import it.ksuploader.utils.LogFormatter;
+
+import it.ksuploader.main.sockets.SocketListener;
+import it.ksuploader.utils.Configuration;
+import org.apache.log4j.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 public class KSUploaderServer {
-	public static Config config;
+	public static Configuration config;
 	public static Logger logger = Logger.getLogger("KSULogger");
 
 	public static void main(String[] args) {
 
-		// file handler
-		try {
-			FileHandler loggerFileHandler = new FileHandler("./KSULog.txt", 10000000, 1, true);
-			loggerFileHandler.setFormatter(new LogFormatter());
-			loggerFileHandler.setLevel(Level.FINEST);
-			logger.setUseParentHandlers(false);
-
-			logger.addHandler(loggerFileHandler);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-
-		// console handler
-		ConsoleHandler consoleHandler = new ConsoleHandler();
-		consoleHandler.setFormatter(new LogFormatter());
-		consoleHandler.setLevel(Level.FINEST);
-
-		logger.addHandler(consoleHandler);
-
-		logger.setLevel(Level.FINEST);
+		setupLogger();
 
 		/*
 		* BOOTING
@@ -52,17 +32,18 @@ public class KSUploaderServer {
 		try {
 			bootstrap(args);
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Error reading configuration", e);
+			logger.log(Level.FATAL, "Error reading configuration", e);
 			System.exit(1);
 		}
 		System.out.println("--------------------------------------------------------------------------------");
 
 		// listen connections
 		try {
-			Listener listener = new Listener();
-			listener.start();
+			SocketListener socketListener = new SocketListener();
+			socketListener.start();
+			
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Error setting up the listener", e);
+			logger.log(Level.FATAL, "Error setting up the listener", e);
 			System.exit(2);
 		}
 
@@ -73,7 +54,7 @@ public class KSUploaderServer {
 	}
 
 	private static void bootstrap(String[] args) throws Exception {
-		config = new Config();
+		config = new Configuration();
 		if (args.length != 0) {
 			if (args.length == 6) {
 				KSUploaderServer.config.setPort(args[0]);
@@ -82,7 +63,7 @@ public class KSUploaderServer {
 				KSUploaderServer.config.setFolderSize(args[3]);
 				KSUploaderServer.config.setMaxFileSize(args[4]);
 				KSUploaderServer.config.setWeb_url(args[5]);
-				logger.log(Level.FINE, "Config created!");
+				logger.log(Level.INFO, "Configuration created!");
 			} else {
 				throw new IllegalArgumentException("Correct args are: port, password, folder, folder size, max file size, web url");
 			}
@@ -102,6 +83,25 @@ public class KSUploaderServer {
 				System.out.println("Web Url: " + KSUploaderServer.config.getWebUrl());
 			}
 		}
+	}
+	
+	public static void setupLogger() {
+		PatternLayout layout = new PatternLayout("%d [%p|%C{1}] %m%n");
+		
+		ConsoleAppender logConsole = new ConsoleAppender();
+		logConsole.setLayout(layout);
+		logConsole.setThreshold(Level.INFO);
+		logConsole.activateOptions();
+		Logger.getRootLogger().addAppender(logConsole);
+		
+		FileAppender logFile = new FileAppender();
+		logFile.setName("KSUploaderFileLogger");
+		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+		logFile.setFile(MessageFormat.format("KSUploader_server-{0}.log", date.format(Calendar.getInstance().getTime())));
+		logFile.setLayout(layout);
+		logFile.setThreshold(Level.INFO);
+		logFile.activateOptions();
+		Logger.getRootLogger().addAppender(logFile);
 	}
 
 	private static void console() {
@@ -135,7 +135,7 @@ public class KSUploaderServer {
 						break;
 				}
 			} catch (IOException e) {
-				logger.log(Level.WARNING, "Invalid command.");
+				logger.log(Level.WARN, "Invalid command.");
 			}
 		}
 	}

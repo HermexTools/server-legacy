@@ -1,23 +1,24 @@
 package it.ksuploader.utils;
 
-import it.ksuploader.main.KSUploaderServer;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class Config extends Properties {
-
-	private Logger logger = KSUploaderServer.logger;
+public class Configuration extends Properties {
+	
+	private Logger logger = Logger.getLogger(this.getClass());
+	
 	private String folder;
 	private String web_url;
 	private String pass;
 	private long folderSize;
 	private long maxFileSize;
 	private int port;
+	private int web_port;
 
-	public Config() {
+	public Configuration() {
 		InputStream inputStream;
 		try {
 
@@ -35,7 +36,7 @@ public class Config extends Properties {
 			if (this.getProperty("folder") == null || this.getProperty("folder").isEmpty()) {
 				this.setProperty("folder", "files");
 				correct_config = true;
-				logger.log(Level.FINE, "[Config] Setting default folder");
+				logger.log(Level.INFO, "[Configuration] Setting default folder");
 			}
 			this.folder = this.getProperty("folder");
 
@@ -43,7 +44,7 @@ public class Config extends Properties {
 			if (this.getProperty("web_url") == null || this.getProperty("web_url").isEmpty()) {
 				this.setProperty("web_url", "http://domain.com/");
 				correct_config = true;
-				logger.log(Level.FINE, "[Config] Setting default web_url");
+				logger.log(Level.INFO, "[Configuration] Setting default web_url");
 			}
 			this.web_url = this.getProperty("web_url");
 
@@ -51,7 +52,7 @@ public class Config extends Properties {
 			if (this.getProperty("password") == null || this.getProperty("password").isEmpty()) {
 				this.setProperty("password", "pass");
 				correct_config = true;
-				logger.log(Level.FINE, "[Config] Setting default password");
+				logger.log(Level.INFO, "[Configuration] Setting default password");
 			}
 			this.pass = this.getProperty("password");
 
@@ -59,15 +60,23 @@ public class Config extends Properties {
 			if (this.getProperty("port") == null || this.getProperty("port").isEmpty()) {
 				this.setProperty("port", "4030");
 				correct_config = true;
-				logger.log(Level.FINE, "[Config] Setting default port");
+				logger.log(Level.INFO, "[Configuration] Setting default port");
 			}
 			this.port = Integer.parseInt(this.getProperty("port"));
+			
+			// Webserver Port
+			if (this.getProperty("web_port") == null || this.getProperty("web_port").isEmpty()) {
+				this.setProperty("web_port", "4040");
+				correct_config = true;
+				logger.log(Level.INFO, "[Configuration] Setting default webserver port");
+			}
+			this.web_port = Integer.parseInt(this.getProperty("web_port"));
 
 			// Folder size
 			if (this.getProperty("folder_size(MB)") == null || this.getProperty("folder_size(MB)").isEmpty()) {
 				this.setProperty("folder_size(MB)", "4096");
 				correct_config = true;
-				logger.log(Level.FINE, "Setting default folder_size(MB)");
+				logger.log(Level.INFO, "Setting default folder_size(MB)");
 			}
 			this.folderSize = Long.parseLong(this.getProperty("folder_size(MB)")) * 1048576;
 
@@ -75,7 +84,7 @@ public class Config extends Properties {
 			if (this.getProperty("max_file_size(MB)") == null || this.getProperty("max_file_size(MB)").isEmpty()) {
 				this.setProperty("max_file_size(MB)", "512");
 				correct_config = true;
-				logger.log(Level.FINE, "[Config] Setting default max_file_size(MB)");
+				logger.log(Level.INFO, "[Configuration] Setting default max_file_size(MB)");
 			}
 			this.maxFileSize = Long.parseLong(this.getProperty("max_file_size(MB)")) * 1048576;
 
@@ -83,7 +92,7 @@ public class Config extends Properties {
 				this.store(new FileOutputStream("server.properties"), null);
 
 		} catch (IOException ex) {
-			this.logger.log(Level.SEVERE, "Error parsing config", ex);
+			this.logger.log(Level.ERROR, "Error parsing config", ex);
 		}
 	}
 
@@ -102,7 +111,11 @@ public class Config extends Properties {
 	public int getPort() {
 		return port;
 	}
-
+	
+	public int getWebPort() {
+		return web_port;
+	}
+	
 	public long getFolderSize() {
 		return folderSize;
 	}
@@ -115,10 +128,10 @@ public class Config extends Properties {
 		try {
 			this.store(new FileOutputStream("server.properties"), null);
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Can't save config", e);
+			logger.log(Level.ERROR, "Can't save config", e);
 			return false;
 		}
-		logger.log(Level.FINE, "Config saved");
+		logger.log(Level.INFO, "Configuration saved");
 		return true;
 	}
 
