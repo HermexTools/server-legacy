@@ -15,9 +15,11 @@ public class SocketListener extends Thread {
 	private ServerSocketChannel serverSocketChannel;
 
 	public SocketListener() throws IOException {
-
-		if (!new File("." + File.separator + KSUploaderServer.config.getFolder()).exists()) {
-			new File("./" + File.separator + KSUploaderServer.config.getFolder()).mkdir();
+		
+		File uploadFolder = new File("." + File.separator + KSUploaderServer.config.getFolder());
+		
+		if (!uploadFolder.exists()) {
+			uploadFolder.mkdirs();
 		}
 		this.listen = true;
 		this.buildSocket();
@@ -28,7 +30,7 @@ public class SocketListener extends Thread {
 			this.serverSocketChannel = ServerSocketChannel.open();
 			this.serverSocketChannel.socket().bind(new InetSocketAddress(KSUploaderServer.config.getPort()));
 
-			this.logger.log(Level.INFO, "Listening on port " + KSUploaderServer.config.getPort() + ".");
+			this.logger.log(Level.INFO, "Socket listening on port " + KSUploaderServer.config.getPort() + ".");
 
 		} catch (IOException exc) {
 			throw new IOException("Can't init the listening socket!");
@@ -42,7 +44,7 @@ public class SocketListener extends Thread {
 	public void run() {
 		while (this.listen) {
 			try {
-				new RequestHandler(this.serverSocketChannel.accept()).start();
+				new SocketRequestHandler(this.serverSocketChannel.accept()).start();
 			} catch (IOException e) {
 				this.logger.log(Level.ERROR, "Error during handling request", e);
 			}

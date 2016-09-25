@@ -40,7 +40,7 @@ public class Configuration extends Properties {
 			}
 			this.folder = this.getProperty("folder");
 
-			// Web url
+			// UndertowServer url
 			if (this.getProperty("web_url") == null || this.getProperty("web_url").isEmpty()) {
 				this.setProperty("web_url", "http://domain.com/");
 				correct_config = true;

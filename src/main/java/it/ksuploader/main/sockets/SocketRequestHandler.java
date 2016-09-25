@@ -12,18 +12,18 @@ import java.nio.channels.SocketChannel;
 
 import static it.ksuploader.utils.FileHelper.acceptedTypes;
 
-class RequestHandler extends Thread {
+class SocketRequestHandler extends Thread {
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	private SocketChannel socketChannel;
 	private DataInputStream input;
 	private DataOutputStream output;
-
 	
-	RequestHandler(SocketChannel socketChannel) {
+	
+	SocketRequestHandler(SocketChannel socketChannel) {
 		this.socketChannel = socketChannel;
-		this.logger.log(Level.INFO, "RequestHandler initialized");
+		this.logger.log(Level.INFO, "SocketRequestHandler initialized");
 	}
 	
 	@Override
@@ -89,22 +89,18 @@ class RequestHandler extends Thread {
 			
 			this.output.writeUTF(Messages.OK.name());
 			
-			// set file name
-			String fileName = FileHelper.generateName();
+			File outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName() + acceptedTypes.get(ftype));
 			
 			this.logger.log(Level.INFO, "Transfer started.");
 			
-			// set file format
-			String format = acceptedTypes.get(ftype);
-			
-			boolean ret = readFromSocket(new File(KSUploaderServer.config.getFolder() + File.separator + fileName + format), flength);
+			boolean ret = readFromSocket(outFile, flength);
 			
 			this.logger.log(Level.INFO, "Transfer ended.");
 			
 			// return URL
 			if (ret) {
-				this.output.writeUTF(KSUploaderServer.config.getWebUrl() + fileName + format);
-				this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + fileName + format);
+				this.output.writeUTF(KSUploaderServer.config.getWebUrl() + outFile.getName());
+				this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + outFile.getName());
 			} else {
 				this.output.writeUTF(Messages.UNKNOWN_ERROR.name());
 			}

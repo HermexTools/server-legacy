@@ -2,10 +2,12 @@ package it.ksuploader.main;
 
 
 import it.ksuploader.main.sockets.SocketListener;
+import it.ksuploader.main.web.UndertowServer;
 import it.ksuploader.utils.Configuration;
 import org.apache.log4j.*;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
@@ -16,9 +18,9 @@ import java.util.Calendar;
 public class KSUploaderServer {
 	public static Configuration config;
 	public static Logger logger = Logger.getLogger("KSULogger");
-
+	
 	public static void main(String[] args) {
-
+		
 		setupLogger();
 
 		/*
@@ -28,7 +30,7 @@ public class KSUploaderServer {
 		System.out.println("                               KSUploader Server                                ");
 		System.out.println("--------------------------------------------------------------------------------");
 		System.out.println("Bootstrap...");
-
+		
 		try {
 			bootstrap(args);
 		} catch (Exception e) {
@@ -36,23 +38,25 @@ public class KSUploaderServer {
 			System.exit(1);
 		}
 		System.out.println("--------------------------------------------------------------------------------");
-
+		
 		// listen connections
 		try {
 			SocketListener socketListener = new SocketListener();
 			socketListener.start();
 			
+			UndertowServer w = new UndertowServer();
+			w.start();
 		} catch (IOException e) {
 			logger.log(Level.FATAL, "Error setting up the listener", e);
 			System.exit(2);
 		}
-
+		
 		// open console
 		console();
-
+		
 		System.exit(0);
 	}
-
+	
 	private static void bootstrap(String[] args) throws Exception {
 		config = new Configuration();
 		if (args.length != 0) {
@@ -97,13 +101,13 @@ public class KSUploaderServer {
 		FileAppender logFile = new FileAppender();
 		logFile.setName("KSUploaderFileLogger");
 		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-		logFile.setFile(MessageFormat.format("KSUploader_server-{0}.log", date.format(Calendar.getInstance().getTime())));
+		logFile.setFile(MessageFormat.format("logs" + File.separator + "KSUploader_server-{0}.log", date.format(Calendar.getInstance().getTime())));
 		logFile.setLayout(layout);
 		logFile.setThreshold(Level.INFO);
 		logFile.activateOptions();
 		Logger.getRootLogger().addAppender(logFile);
 	}
-
+	
 	private static void console() {
 		String cmd = "";
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
