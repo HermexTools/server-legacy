@@ -31,7 +31,15 @@ public class FileHelper {
 	}
 	
 	public static String generateName() {
-		String fileName = new SimpleDateFormat("ddMMyy-HHmmssSS").format(Calendar.getInstance().getTime());
-		return new Random().nextInt(9999) + "-" + fileName;
+		String fileName = new SimpleDateFormat("ddMMyy-HHmmss").format(Calendar.getInstance().getTime());
+		return new Random().nextInt(999) + "-" + fileName;
 	}
+	
+	public static String generateName(String filename){
+		String st = filename;
+		st = st.replaceAll("[-+^,èòàù()%&:\\[\\]{\\}]", "");
+		st = st.replaceAll(" ", "_");
+		return new Random().nextInt(99999) + "-" + st;
+	}
+		
 }

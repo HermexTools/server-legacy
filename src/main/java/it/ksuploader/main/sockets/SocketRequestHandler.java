@@ -9,8 +9,7 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
-
-import static it.ksuploader.utils.FileHelper.acceptedTypes;
+import java.text.MessageFormat;
 
 class SocketRequestHandler extends Thread {
 	
@@ -36,7 +35,7 @@ class SocketRequestHandler extends Thread {
 			this.input = new DataInputStream(socketChannel.socket().getInputStream());
 			this.output = new DataOutputStream(socketChannel.socket().getOutputStream());
 			
-			// Syn string (password&fileLength&fileType)
+			// Syn string (password & fileLength & fileName)
 			this.logger.log(Level.INFO, "Waiting SYN");
 			String synInfo[] = input.readUTF().split("&");
 			
@@ -48,14 +47,12 @@ class SocketRequestHandler extends Thread {
 				return;
 			}
 			
-			this.logger.log(Level.INFO, "Auth received: " + synInfo[0]);
-			this.logger.log(Level.INFO, "File length: " + synInfo[1]);
-			this.logger.log(Level.INFO, "File type: " + synInfo[2]);
-			
 			// start controls
 			String auth = synInfo[0];
-			long flength = Long.parseLong(synInfo[1]);
-			String ftype = synInfo[2];
+			long fileLength = Long.parseLong(synInfo[1]);
+			String fileName = synInfo[2];
+			
+			this.logger.log(Level.INFO, MessageFormat.format("Auth, fileName, fileLenght: {0}, {1}, {2} KB", auth, fileName, fileLength / 1024));
 			
 			// check password
 			if (!KSUploaderServer.config.getPass().equals(auth)) {
@@ -66,34 +63,32 @@ class SocketRequestHandler extends Thread {
 			}
 			
 			// check file length
-			if (flength > KSUploaderServer.config.getMaxFileSize()) {
+			if (fileLength > KSUploaderServer.config.getMaxFileSize()) {
 				logger.log(Level.INFO, "Incoming file too large");
 				this.output.writeUTF(Messages.FILE_TOO_LARGE.name());
 				this.close();
 				return;
 			}
 			
-			if (FileHelper.folderSize() + flength >= KSUploaderServer.config.getFolderSize()) {
+			if (FileHelper.folderSize() + fileLength >= KSUploaderServer.config.getFolderSize()) {
 				logger.log(Level.WARN, "Server full");
 				this.output.writeUTF(Messages.SERVER_FULL.name());
 				this.close();
 				return;
 			}
 			
-			if (!acceptedTypes.containsKey(ftype)) {
-				logger.log(Level.INFO, "Incoming file not recognized");
-				this.output.writeUTF(Messages.FILE_NOT_RECOGNIZED.name());
-				this.close();
-				return;
-			}
-			
 			this.output.writeUTF(Messages.OK.name());
 			
-			File outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName() + acceptedTypes.get(ftype));
+			File outFile;
+			if (fileName.contains("{0}")) {
+				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + MessageFormat.format(fileName, FileHelper.generateName()));
+			} else {
+				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName(fileName));
+			}
 			
 			this.logger.log(Level.INFO, "Transfer started.");
 			
-			boolean ret = readFromSocket(outFile, flength);
+			boolean ret = readFromSocket(outFile, fileLength);
 			
 			this.logger.log(Level.INFO, "Transfer ended.");
 			

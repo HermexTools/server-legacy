@@ -15,8 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-
-import static it.ksuploader.utils.FileHelper.acceptedTypes;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
 
 /**
  * Created by Sergio on 25/09/2016.
@@ -40,33 +40,14 @@ public class HttpRequestHandler extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			
-			if (request.getPart("data") == null) {
-				response.getWriter().write("FIELD_DATA_EMPTY");
+			if (request.getPart("data") == null || request.getParameter("auth") == null) {
+				response.getWriter().write("MISSING_OR_INVALID_PARAMETER");
 				return;
 			}
 			
 			String auth = request.getParameter("auth");
-			long flength = request.getPart("data").getSize();
-			String ftype = request.getParameter("filetype");
-			
-			if (ftype == null) {
-				if (request.getPart("data").getContentType().contains("png")) {
-					ftype = "img";
-				} else if (request.getPart("data").getContentType().contains("text/plain")) {
-					ftype = "txt";
-				} else if (request.getPart("data").getContentType().contains("zip")) {
-					ftype = "file";
-				} else {
-					response.getWriter().write(Messages.FILE_NOT_RECOGNIZED.name());
-					return;
-				}
-			}
-			
-			if (!acceptedTypes.containsKey(ftype)) {
-				logger.log(Level.INFO, "Incoming file not recognized");
-				response.getWriter().write(Messages.FILE_NOT_RECOGNIZED.name());
-				return;
-			}
+			long fileLength = request.getPart("data").getSize();
+			String fileType = Paths.get(request.getPart("data").getSubmittedFileName()).getFileName().toString();
 			
 			if (!KSUploaderServer.config.getPass().equals(auth)) {
 				logger.log(Level.INFO, "Client wrong password");
@@ -74,20 +55,25 @@ public class HttpRequestHandler extends HttpServlet {
 				return;
 			}
 			
-			if (FileHelper.folderSize() + flength >= KSUploaderServer.config.getFolderSize()) {
+			if (FileHelper.folderSize() + fileLength >= KSUploaderServer.config.getFolderSize()) {
 				logger.log(Level.WARN, "Server full");
 				response.getWriter().write(Messages.SERVER_FULL.name());
 				return;
 			}
 			
-			File outfile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName() + acceptedTypes.get(ftype));
-			
-			try (InputStream is = request.getPart("data").getInputStream()) {
-				Files.copy(is, outfile.toPath());
+			File outFile;
+			if (fileType.contains("{0}")) {
+				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + MessageFormat.format(fileType, FileHelper.generateName()));
+			} else {
+				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName(fileType));
 			}
 			
-			response.getWriter().write(KSUploaderServer.config.getWebUrl() + outfile.getName());
-			this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + outfile.getName());
+			try (InputStream is = request.getPart("data").getInputStream()) {
+				Files.copy(is, outFile.toPath());
+			}
+			
+			response.getWriter().write(KSUploaderServer.config.getWebUrl() + outFile.getName());
+			this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + outFile.getName());
 			
 		} catch (IOException | ServletException e) {
 			this.logger.log(Level.FATAL, "Something went wrong", e);
