@@ -19,6 +19,9 @@ public class KSUploaderServer {
 	public static Configuration config;
 	public static Logger logger = Logger.getLogger("KSULogger");
 	
+	public static SocketListener socketListener;
+	public static UndertowServer webServer;
+	
 	public static void main(String[] args) {
 		
 		setupLogger();
@@ -41,11 +44,11 @@ public class KSUploaderServer {
 		
 		// listen connections
 		try {
-			SocketListener socketListener = new SocketListener();
+			socketListener = new SocketListener();
 			socketListener.start();
 			
-			UndertowServer w = new UndertowServer();
-			w.start();
+			webServer = new UndertowServer();
+			webServer.start();
 		} catch (IOException e) {
 			logger.log(Level.FATAL, "Error setting up the listener", e);
 			System.exit(2);

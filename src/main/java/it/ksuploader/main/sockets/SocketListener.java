@@ -16,7 +16,7 @@ public class SocketListener extends Thread {
 
 	public SocketListener() throws IOException {
 		
-		File uploadFolder = new File("." + File.separator + KSUploaderServer.config.getFolder());
+		File uploadFolder = new File(KSUploaderServer.config.getFolder());
 		
 		if (!uploadFolder.exists()) {
 			uploadFolder.mkdirs();

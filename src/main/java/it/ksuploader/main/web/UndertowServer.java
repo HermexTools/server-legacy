@@ -69,4 +69,13 @@ public class UndertowServer {
 		}
 	}
 	
+	public void stop() {
+		try {
+			this.server.stop();
+			logger.log(Level.INFO, "Webserver listening on port " + config.getWebPort() + ".");
+		} catch (Exception e) {
+			logger.log(Level.ERROR, "Cannot start webserver.");
+		}
+	}
+	
 }
