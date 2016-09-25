@@ -15,6 +15,7 @@ It contains:
 * `port`: the port where the server will accept new connections.
 * `folder_size(MB)`: the max size in MB of the entire server folder.
 * `max_file_size(MB)`: the max size in MB of a file that the server will accept.
+* `web_port`: the port used by webserver for serving files and accept HTTP uploads.
 
 >Attention: all config properties must be not null, even if you don't use one of them.
 
