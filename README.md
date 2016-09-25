@@ -2,7 +2,7 @@
 KSUploader is a instant sharing tool.
 This is the runnable server side. If you would know what the client can do please read the correspondent [readme](https://github.com/KSUploader/KSUploader-client).
 
-UPDATE: The server is now compatible with all clients that supports uploads via HTTP POST.
+UPDATE: The server is now compatible with all clients that supports uploads via HTTP POST and TCP Socket that match the protocol used by KSUServer.
 
 ### How to install
 Actually simply run it one time to generate the `server.properties`: a config file.
