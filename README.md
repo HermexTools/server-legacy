@@ -2,6 +2,8 @@
 KSUploader is a instant sharing tool.
 This is the runnable server side. If you would know what the client can do please read the correspondent [readme](https://github.com/KSUploader/KSUploader-client).
 
+UPDATE: The server is now compatible with all clients that supports uploads via HTTP POST.
+
 ### How to install
 Actually simply run it one time to generate the `server.properties`: a config file.
 To run the server you can use: `java -jar KSUploader_server.jar`, you can define some settings with the launch command: serverDomain, folder, pass, port including all of them, they will be automatically saved in the config file. Ex. `java -jar KSUploader_server.jar http://domain.com uploads myPass 3040`
