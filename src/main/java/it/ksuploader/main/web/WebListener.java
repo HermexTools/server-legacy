@@ -22,16 +22,17 @@ import static it.ksuploader.main.KSUploaderServer.config;
 /**
  * Created by Sergio on 25/09/2016.
  */
-public class UndertowServer {
+public class WebListener {
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	
+	private boolean listening;
 	private Undertow server;
 	
-	public UndertowServer() {
+	public WebListener() {
 		try {
 			DeploymentInfo servletBuilder = Servlets.deployment()
-					.setClassLoader(UndertowServer.class.getClassLoader())
+					.setClassLoader(WebListener.class.getClassLoader())
 					.setDeploymentName("HttpRequestHandler")
 					.setContextPath("/")
 					.addServlets(
@@ -60,22 +61,27 @@ public class UndertowServer {
 		}
 	}
 	
-	public void start() {
+	public void startListen() {
 		try {
 			this.server.start();
 			logger.log(Level.INFO, "Webserver listening on port " + config.getWebPort() + ".");
+			this.listening = true;
 		} catch (Exception e) {
-			logger.log(Level.ERROR, "Cannot start webserver.");
+			logger.log(Level.ERROR, "Cannot start webserver.", e);
 		}
 	}
 	
-	public void stop() {
+	public void stopListen() {
 		try {
 			this.server.stop();
-			logger.log(Level.INFO, "Webserver listening on port " + config.getWebPort() + ".");
+			this.logger.log(Level.WARN, "Stopping listening...");
+			this.listening = false;
 		} catch (Exception e) {
-			logger.log(Level.ERROR, "Cannot start webserver.");
+			logger.log(Level.ERROR, "Cannot stop webserver.", e);
 		}
 	}
 	
+	public boolean isListening() {
+		return this.listening;
+	}
 }

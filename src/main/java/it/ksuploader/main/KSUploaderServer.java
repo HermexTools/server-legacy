@@ -2,13 +2,12 @@ package it.ksuploader.main;
 
 
 import it.ksuploader.main.sockets.SocketListener;
-import it.ksuploader.main.web.UndertowServer;
+import it.ksuploader.main.web.WebListener;
 import it.ksuploader.utils.Configuration;
 import org.apache.log4j.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -20,7 +19,7 @@ public class KSUploaderServer {
 	public static Logger logger = Logger.getLogger("KSULogger");
 	
 	public static SocketListener socketListener;
-	public static UndertowServer webServer;
+	public static WebListener webServer;
 	
 	public static void main(String[] args) {
 		
@@ -42,22 +41,19 @@ public class KSUploaderServer {
 		}
 		System.out.println("--------------------------------------------------------------------------------");
 		
-		// listen connections
-		try {
-			socketListener = new SocketListener();
-			socketListener.start();
-			
-			webServer = new UndertowServer();
-			webServer.start();
-		} catch (IOException e) {
-			logger.log(Level.FATAL, "Error setting up the listener", e);
-			System.exit(2);
+		socketListener = new SocketListener();
+		webServer = new WebListener();
+		
+		if (config.isSocketEnabled()) {
+			socketListener.startListen();
 		}
 		
-		// open console
-		console();
+		if (config.isWebserverEnabled()) {
+			webServer.startListen();
+		}
 		
-		System.exit(0);
+		// open consoleLoop
+		consoleLoop();
 	}
 	
 	private static void bootstrap(String[] args) throws Exception {
@@ -65,14 +61,15 @@ public class KSUploaderServer {
 		if (args.length != 0) {
 			if (args.length == 6) {
 				KSUploaderServer.config.setPort(args[0]);
-				KSUploaderServer.config.setPass(args[1]);
-				KSUploaderServer.config.setFolder(args[2]);
-				KSUploaderServer.config.setFolderSize(args[3]);
-				KSUploaderServer.config.setMaxFileSize(args[4]);
-				KSUploaderServer.config.setWeb_url(args[5]);
+				KSUploaderServer.config.setPort(args[2]);
+				KSUploaderServer.config.setPass(args[3]);
+				KSUploaderServer.config.setFolder(args[4]);
+				KSUploaderServer.config.setFolderSize(args[5]);
+				KSUploaderServer.config.setMaxFileSize(args[6]);
+				KSUploaderServer.config.setWeb_url(args[7]);
 				logger.log(Level.INFO, "Configuration created!");
 			} else {
-				throw new IllegalArgumentException("Correct args are: port, password, folder, folder size, max file size, web url");
+				throw new IllegalArgumentException("Correct args are: port, web_port, password, folder, folder size, max file size, web url");
 			}
 		} else {
 			if (
@@ -84,6 +81,7 @@ public class KSUploaderServer {
 			} else {
 				System.out.println("Password: " + KSUploaderServer.config.getPass());
 				System.out.println("Port: " + KSUploaderServer.config.getPort());
+				System.out.println("Web Port: " + KSUploaderServer.config.getWebPort());
 				System.out.println("Folder: " + KSUploaderServer.config.getFolder());
 				System.out.println("Folder Max size: " + KSUploaderServer.config.getFolderSize());
 				System.out.println("File Max size: " + KSUploaderServer.config.getMaxFileSize());
@@ -111,38 +109,87 @@ public class KSUploaderServer {
 		Logger.getRootLogger().addAppender(logFile);
 	}
 	
-	private static void console() {
-		String cmd = "";
+	private static void consoleLoop() {
+		String[] cmd;
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		while (!cmd.equals("shutdown")) {
+		while (true) {
 			try {
-				cmd = in.readLine();
-				switch (cmd.split(" ")[0]) {
-					case "change-password":
-						if (config.setPass(cmd.split(" ")[1])) {
-							System.out.println("Password changed.");
-						} else {
-							System.out.println("Error.");
+				cmd = in.readLine().split(" ");
+				switch (cmd[0]) {
+					case "password":
+						switch (cmd[1]) {
+							case "get":
+								System.out.println(config.getPass());
+								break;
+							case "change":
+								if (cmd.length == 3 && config.setPass(cmd[2])) {
+									System.out.println("Password changed.");
+								} else {
+									System.out.println("Error. Usage: 'password change <pass>pas'");
+								}
+								break;
 						}
 						break;
-					case "get-password":
-						System.out.println(config.getPass());
+					case "socket":
+						switch (cmd[1]) {
+							case "stop":
+								if (socketListener.isListening()) {
+									socketListener.stopListen();
+								}
+								break;
+							case "start":
+								if (socketListener.isListening()) {
+									socketListener.stopListen();
+								}
+								socketListener = new SocketListener();
+								socketListener.startListen();
+								break;
+							case "status":
+								System.out.println("Socket listening: " + socketListener.isListening());
+								break;
+						}
+						break;
+					case "web":
+						switch (cmd[1]) {
+							case "start":
+								if (webServer.isListening()) {
+									webServer.stopListen();
+								}
+								webServer.startListen();
+								break;
+							case "stop":
+								if (webServer.isListening()) {
+									webServer.stopListen();
+								}
+								break;
+							case "status":
+								System.out.println("Webserver listening: " + webServer.isListening());
+								break;
+						}
 						break;
 					case "help":
 					case "?":
-						System.out.println("change-password <pass> - Change the server password");
-						System.out.println("get-password - Print current password");
+						System.out.println("password [get|change] - Print or change current password.");
+						System.out.println("socket [start|stop|status] - SocketListener operations.");
+						System.out.println("web [start|stop|status] - Webserver operations.");
 						System.out.println("shutdown - Stop the server");
 						break;
 					case "shutdown":
-						System.out.println("Shutting down...");
+						if (socketListener.isListening()) {
+							socketListener.stopListen();
+						}
+						if (webServer.isListening()) {
+							webServer.stopListen();
+						}
+						System.out.println("Bye!");
+						System.exit(0);
 						break;
 					default:
 						System.out.println("Invalid command.");
 						break;
 				}
-			} catch (IOException e) {
-				logger.log(Level.WARN, "Invalid command.");
+			} catch (Exception e) {
+				logger.log(Level.WARN, "Command error: Invalid.", e);
 			}
 		}
 	}

@@ -17,6 +17,8 @@ public class Configuration extends Properties {
 	private long maxFileSize;
 	private int port;
 	private int web_port;
+	private boolean socketEnabled;
+	private boolean webserverEnabled;
 
 	public Configuration() {
 		InputStream inputStream;
@@ -40,7 +42,7 @@ public class Configuration extends Properties {
 			}
 			this.folder = this.getProperty("folder");
 
-			// UndertowServer url
+			// web url
 			if (this.getProperty("web_url") == null || this.getProperty("web_url").isEmpty()) {
 				this.setProperty("web_url", "http://domain.com/");
 				correct_config = true;
@@ -87,7 +89,23 @@ public class Configuration extends Properties {
 				logger.log(Level.INFO, "[Configuration] Setting default max_file_size(MB)");
 			}
 			this.maxFileSize = Long.parseLong(this.getProperty("max_file_size(MB)")) * 1048576;
-
+			
+			// socket enabled
+			if (this.getProperty("socket_enabled") == null || this.getProperty("socket_enabled").isEmpty()) {
+				this.setProperty("socket_enabled", "true");
+				correct_config = true;
+				System.out.println("[LoadConfig] Setting default socket_enabled");
+			}
+			this.socketEnabled = Boolean.valueOf(this.getProperty("socket_enabled"));
+			
+			// webserver enabled
+			if (this.getProperty("webserver_enabled") == null || this.getProperty("webserver_enabled").isEmpty()) {
+				this.setProperty("webserver_enabled", "true");
+				correct_config = true;
+				System.out.println("[LoadConfig] Setting default webserver_enabled");
+			}
+			this.webserverEnabled = Boolean.valueOf(this.getProperty("webserver_enabled"));
+			
 			if (correct_config)
 				this.store(new FileOutputStream("server.properties"), null);
 
@@ -123,7 +141,15 @@ public class Configuration extends Properties {
 	public long getMaxFileSize() {
 		return maxFileSize;
 	}
-
+	
+	public boolean isSocketEnabled() {
+		return socketEnabled;
+	}
+	
+	public boolean isWebserverEnabled() {
+		return webserverEnabled;
+	}
+	
 	private boolean save() {
 		try {
 			this.store(new FileOutputStream("server.properties"), null);
