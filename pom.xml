@@ -6,7 +6,7 @@
 
     <groupId>it.ksuploader</groupId>
     <artifactId>KSUploader-server</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <build>
         <plugins>
             <plugin>
@@ -58,18 +58,5 @@
             <artifactId>undertow-servlet</artifactId>
             <version>RELEASE</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-util</artifactId>-->
-            <!--<version>RELEASE</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-servlet</artifactId>-->
-            <!--<version>RELEASE</version>-->
-        <!--</dependency>-->
     </dependencies>
-
-
 </project>
