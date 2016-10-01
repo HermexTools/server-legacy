@@ -1,8 +1,7 @@
 package it.ksuploader.main;
 
 
-import it.ksuploader.main.sockets.SocketListener;
-import it.ksuploader.main.web.WebListener;
+import it.ksuploader.main.uploaders.socket.SocketListener;
 import it.ksuploader.utils.Configuration;
 import org.apache.log4j.*;
 
@@ -19,7 +18,7 @@ public class KSUploaderServer {
 	public static Logger logger = Logger.getLogger("KSULogger");
 	
 	public static SocketListener socketListener;
-	public static WebListener webServer;
+	public static Webserver webServer;
 	
 	public static void main(String[] args) {
 		
@@ -32,17 +31,11 @@ public class KSUploaderServer {
 		System.out.println("                               KSUploader Server                                ");
 		System.out.println("--------------------------------------------------------------------------------");
 		System.out.println("Bootstrap...");
-		
-		try {
-			bootstrap(args);
-		} catch (Exception e) {
-			logger.log(Level.FATAL, "Error reading configuration", e);
-			System.exit(1);
-		}
+		bootstrap();
 		System.out.println("--------------------------------------------------------------------------------");
 		
 		socketListener = new SocketListener();
-		webServer = new WebListener();
+		webServer = new Webserver();
 		
 		if (config.isSocketEnabled()) {
 			socketListener.startListen();
@@ -53,44 +46,30 @@ public class KSUploaderServer {
 		}
 		
 		// open consoleLoop
+		System.out.println("Type 'help' or '?' for commands help.");
 		consoleLoop();
 	}
 	
-	private static void bootstrap(String[] args) throws Exception {
+	private static void bootstrap() {
 		config = new Configuration();
-		if (args.length != 0) {
-			if (args.length == 6) {
-				KSUploaderServer.config.setPort(args[0]);
-				KSUploaderServer.config.setPort(args[2]);
-				KSUploaderServer.config.setPass(args[3]);
-				KSUploaderServer.config.setFolder(args[4]);
-				KSUploaderServer.config.setFolderSize(args[5]);
-				KSUploaderServer.config.setMaxFileSize(args[6]);
-				KSUploaderServer.config.setWeb_url(args[7]);
-				logger.log(Level.INFO, "Configuration created!");
-			} else {
-				throw new IllegalArgumentException("Correct args are: port, web_port, password, folder, folder size, max file size, web url");
-			}
-		} else {
-			if (
-					KSUploaderServer.config.getFolder().equals("") ||
-							KSUploaderServer.config.getPass().equals("") ||
-							Integer.toString(KSUploaderServer.config.getPort()).equals("") ||
-							KSUploaderServer.config.getWebUrl().equals("")) {
-				throw new Exception("Error reading config properties.");
-			} else {
-				System.out.println("Password: " + KSUploaderServer.config.getPass());
-				System.out.println("Port: " + KSUploaderServer.config.getPort());
-				System.out.println("Web Port: " + KSUploaderServer.config.getWebPort());
-				System.out.println("Folder: " + KSUploaderServer.config.getFolder());
-				System.out.println("Folder Max size: " + KSUploaderServer.config.getFolderSize());
-				System.out.println("File Max size: " + KSUploaderServer.config.getMaxFileSize());
-				System.out.println("Web Url: " + KSUploaderServer.config.getWebUrl());
+		
+		System.out.println("Port: " + KSUploaderServer.config.getPort());
+		System.out.println("Web Port: " + KSUploaderServer.config.getWebPort());
+		System.out.println("Web Url: " + KSUploaderServer.config.getWebUrl());
+		System.out.println("Folder: " + KSUploaderServer.config.getFolder());
+		System.out.println("Folder Max size: " + KSUploaderServer.config.getFolderSize() / (1024 * 1024) + " MB");
+		System.out.println("File Max size: " + KSUploaderServer.config.getMaxFileSize() / (1024 * 1024) + " MB");
+		
+		File uploadFoder = new File(config.getFolder());
+		if (!uploadFoder.isDirectory()) {
+			if (!uploadFoder.mkdirs()) {
+				logger.log(Level.FATAL, "Cannot find or create upload folder.");
+				System.exit(1);
 			}
 		}
 	}
 	
-	public static void setupLogger() {
+	private static void setupLogger() {
 		PatternLayout layout = new PatternLayout("%d [%p|%C{1}] %m%n");
 		
 		ConsoleAppender logConsole = new ConsoleAppender();
@@ -117,6 +96,10 @@ public class KSUploaderServer {
 				cmd = in.readLine().split(" ");
 				switch (cmd[0]) {
 					case "password":
+						if (cmd.length == 1) {
+							System.out.println("Invalid command.\nRight syntax: password [get|change]");
+							break;
+						}
 						switch (cmd[1]) {
 							case "get":
 								System.out.println(config.getPass());
@@ -131,6 +114,10 @@ public class KSUploaderServer {
 						}
 						break;
 					case "socket":
+						if (cmd.length == 1) {
+							System.out.println("Invalid command.\nRight syntax: socket [start|stop|status]");
+							break;
+						}
 						switch (cmd[1]) {
 							case "stop":
 								if (socketListener.isListening()) {
@@ -150,6 +137,10 @@ public class KSUploaderServer {
 						}
 						break;
 					case "web":
+						if (cmd.length == 1) {
+							System.out.println("Invalid command.\nRight syntax: web [start|stop|status]");
+							break;
+						}
 						switch (cmd[1]) {
 							case "start":
 								if (webServer.isListening()) {
@@ -181,7 +172,6 @@ public class KSUploaderServer {
 						if (webServer.isListening()) {
 							webServer.stopListen();
 						}
-						System.out.println("Bye!");
 						System.exit(0);
 						break;
 					default:

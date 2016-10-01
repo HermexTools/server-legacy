@@ -1,4 +1,4 @@
-package it.ksuploader.main.sockets;
+package it.ksuploader.main.uploaders.socket;
 
 import it.ksuploader.main.KSUploaderServer;
 import it.ksuploader.utils.FileHelper;

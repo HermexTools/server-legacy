@@ -6,7 +6,7 @@
 
     <groupId>it.ksuploader</groupId>
     <artifactId>KSUploader-server</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <build>
         <plugins>
             <plugin>
@@ -52,10 +52,14 @@
             <artifactId>undertow-core</artifactId>
             <version>RELEASE</version>
         </dependency>
-
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-servlet</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mitchellbosecke</groupId>
+            <artifactId>pebble</artifactId>
             <version>RELEASE</version>
         </dependency>
     </dependencies>

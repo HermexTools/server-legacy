@@ -1,0 +1,22 @@
+body {
+    padding-top: 70px;
+}
+
+.thumb {
+    min-height: 350px;
+}
+
+.pager {
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+.col-pager {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}

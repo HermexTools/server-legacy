@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KSUploader Panel</title>
+    <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/custom.css" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="">KSU Panel</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/panel/login?logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="row pager">
+        <div class="col-md-12 col-pager">
+            {% if nextPage is not empty %}
+                <a href="/panel?page={{ nextPage }}" class="btn btn-default pull-right">Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
+            {% endif %}
+            {% if previousPage is not empty %}
+                <a href="/panel?page={{ previousPage }}" class="btn btn-default pull-left"><span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        {% for f in files %}
+            <div class="col-md-3 thumb">
+                <div class="row">
+                    <div class="col col-md-9"><b>{{ f.file }}</b></div>
+                    <div class="col col-md-3">
+                        <a href="/panel?page={{ page }}&delete={{ f.file }}" class="btn btn-danger btn-sm pull-right">
+                            <span class="glyphicon glyphicon-minus-sign"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 2px">
+                    <div class="col col-md-12">
+                        <a class="thumbnail" href="/{{ f.file }}">
+                            {% if f.img %}
+                                <img class="img-responsive" style="max-height: 270px" src="/{{ f.file }}" alt="{{ f.file }}">
+                            {% else %}
+                                <img class="img-responsive" style="max-height: 270px" src="/assets/imgs/file.png" alt="{{ f.file }}">
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="row pager">
+        <div class="col-md-12 col-pager">
+            {% if nextPage is not empty %}
+                <a href="/panel?page={{ nextPage }}" class="btn btn-default pull-right">Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
+            {% endif %}
+            {% if previousPage is not empty %}
+                <a href="/panel?page={{ previousPage }}" class="btn btn-default pull-left"><span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script src="/assets/jquery.js"></script>
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
