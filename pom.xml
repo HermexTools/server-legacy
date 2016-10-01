@@ -6,7 +6,7 @@
 
     <groupId>it.ksuploader</groupId>
     <artifactId>KSUploader-server</artifactId>
-    <version>1.9</version>
+    <version>1.9.1</version>
     <build>
         <plugins>
             <plugin>

@@ -19,7 +19,7 @@
                 <div class="panel-body">
                     <form action="/panel/login" method="post">
                         <label for="login">Password</label>
-                        <input id="login" type="text" class="form-control" name="password">
+                        <input id="login" type="password" class="form-control" name="password">
                         <br>
                         <input type="submit" class="btn btn-success pull-right" value="Login">
                     </form>
