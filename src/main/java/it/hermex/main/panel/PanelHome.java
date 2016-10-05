@@ -1,9 +1,9 @@
-package it.ksuploader.main.panel;
+package it.hermex.main.panel;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import it.ksuploader.main.KSUploaderServer;
+import it.hermex.main.HermexServer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -43,16 +43,17 @@ public class PanelHome extends HttpServlet {
 			}
 			
 			if (request.getParameter("delete") != null) {
-				File f = new File(KSUploaderServer.config.getFolder(), request.getParameter("delete"));
+				File f = new File(HermexServer.config.getFolder(), request.getParameter("delete"));
 				f.delete();
 				response.sendRedirect(request.getRequestURI() + "?page=" + request.getParameter("page"));
+				return;
 			}
 			
 			PebbleEngine engine = new PebbleEngine.Builder().build();
 			PebbleTemplate compiledTemplate = engine.getTemplate("templates/home.peb");
 			Map<String, Object> context = new HashMap<>();
 			
-			File f = new File(KSUploaderServer.config.getFolder());
+			File f = new File(HermexServer.config.getFolder());
 			List<Map> files = new ArrayList<>();
 			
 			File[] folder = f.listFiles();

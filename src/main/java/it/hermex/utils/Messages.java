@@ -1,4 +1,4 @@
-package it.ksuploader.utils;
+package it.hermex.utils;
 
 /**
  * Created by Sergio on 25/09/2016.

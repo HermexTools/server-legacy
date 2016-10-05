@@ -1,8 +1,8 @@
-package it.ksuploader.main.uploaders.socket;
+package it.hermex.main.uploaders.socket;
 
-import it.ksuploader.main.KSUploaderServer;
-import it.ksuploader.utils.FileHelper;
-import it.ksuploader.utils.Messages;
+import it.hermex.main.HermexServer;
+import it.hermex.utils.FileHelper;
+import it.hermex.utils.Messages;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -55,7 +55,7 @@ class SocketRequestHandler extends Thread {
 			this.logger.log(Level.INFO, MessageFormat.format("Auth, fileName, fileLenght: {0}, {1}, {2} KB", auth, fileName, fileLength / 1024));
 			
 			// check password
-			if (!KSUploaderServer.config.getPass().equals(auth)) {
+			if (!HermexServer.config.getPass().equals(auth)) {
 				logger.log(Level.INFO, "Client wrong password");
 				this.output.writeUTF(Messages.WRONG_PASSWORD.name());
 				this.close();
@@ -63,14 +63,14 @@ class SocketRequestHandler extends Thread {
 			}
 			
 			// check file length
-			if (fileLength > KSUploaderServer.config.getMaxFileSize()) {
+			if (fileLength > HermexServer.config.getMaxFileSize()) {
 				logger.log(Level.INFO, "Incoming file too large");
 				this.output.writeUTF(Messages.FILE_TOO_LARGE.name());
 				this.close();
 				return;
 			}
 			
-			if (FileHelper.folderSize() + fileLength >= KSUploaderServer.config.getFolderSize()) {
+			if (FileHelper.folderSize() + fileLength >= HermexServer.config.getFolderSize()) {
 				logger.log(Level.WARN, "Server full");
 				this.output.writeUTF(Messages.SERVER_FULL.name());
 				this.close();
@@ -81,9 +81,9 @@ class SocketRequestHandler extends Thread {
 			
 			File outFile;
 			if (fileName.contains("{0}")) {
-				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + MessageFormat.format(fileName, FileHelper.generateName()));
+				outFile = new File(HermexServer.config.getFolder() + File.separator + MessageFormat.format(fileName, FileHelper.generateName()));
 			} else {
-				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName(fileName));
+				outFile = new File(HermexServer.config.getFolder() + File.separator + FileHelper.generateName(fileName));
 			}
 			
 			this.logger.log(Level.INFO, "Transfer started.");
@@ -94,8 +94,8 @@ class SocketRequestHandler extends Thread {
 			
 			// return URL
 			if (ret) {
-				this.output.writeUTF(KSUploaderServer.config.getWebUrl() + outFile.getName());
-				this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + outFile.getName());
+				this.output.writeUTF(HermexServer.config.getWebUrl() + outFile.getName());
+				this.logger.log(Level.INFO, "Returned link -> " + HermexServer.config.getWebUrl() + outFile.getName());
 			} else {
 				this.output.writeUTF(Messages.UNKNOWN_ERROR.name());
 			}

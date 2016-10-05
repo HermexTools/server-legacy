@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KSUploader Panel</title>
+    <title>Hermex Panel</title>
     <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/custom.css" rel="stylesheet">
 </head>
@@ -21,7 +21,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="">KSU Panel</a>
+            <a class="navbar-brand" href="">Hermex Panel</a>
         </div>
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/panel/login?logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>

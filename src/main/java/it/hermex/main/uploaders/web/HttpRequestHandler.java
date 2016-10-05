@@ -1,8 +1,8 @@
-package it.ksuploader.main.uploaders.web;
+package it.hermex.main.uploaders.web;
 
-import it.ksuploader.main.KSUploaderServer;
-import it.ksuploader.utils.FileHelper;
-import it.ksuploader.utils.Messages;
+import it.hermex.main.HermexServer;
+import it.hermex.utils.FileHelper;
+import it.hermex.utils.Messages;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -49,14 +49,14 @@ public class HttpRequestHandler extends HttpServlet {
 			long fileLength = request.getPart("data").getSize();
 			String fileType = Paths.get(request.getPart("data").getSubmittedFileName()).getFileName().toString();
 			
-			if (!KSUploaderServer.config.getPass().equals(auth)) {
+			if (!HermexServer.config.getPass().equals(auth)) {
 				logger.log(Level.INFO, "Client wrong password");
 				response.getWriter().write(Messages.WRONG_PASSWORD.name());
 				request.getPart("data").delete();
 				return;
 			}
 			
-			if (FileHelper.folderSize() + fileLength >= KSUploaderServer.config.getFolderSize()) {
+			if (FileHelper.folderSize() + fileLength >= HermexServer.config.getFolderSize()) {
 				logger.log(Level.WARN, "Server full");
 				response.getWriter().write(Messages.SERVER_FULL.name());
 				request.getPart("data").delete();
@@ -65,17 +65,17 @@ public class HttpRequestHandler extends HttpServlet {
 			
 			File outFile;
 			if (fileType.contains("{0}")) {
-				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + MessageFormat.format(fileType, FileHelper.generateName()));
+				outFile = new File(HermexServer.config.getFolder() + File.separator + MessageFormat.format(fileType, FileHelper.generateName()));
 			} else {
-				outFile = new File(KSUploaderServer.config.getFolder() + File.separator + FileHelper.generateName(fileType));
+				outFile = new File(HermexServer.config.getFolder() + File.separator + FileHelper.generateName(fileType));
 			}
 			
 			try (InputStream is = request.getPart("data").getInputStream()) {
 				Files.copy(is, outFile.toPath());
 			}
-			response.getWriter().write(KSUploaderServer.config.getWebUrl() + outFile.getName());
+			response.getWriter().write(HermexServer.config.getWebUrl() + outFile.getName());
 			request.getPart("data").delete();
-			this.logger.log(Level.INFO, "Returned link -> " + KSUploaderServer.config.getWebUrl() + outFile.getName());
+			this.logger.log(Level.INFO, "Returned link - " + HermexServer.config.getWebUrl() + outFile.getName());
 			
 		} catch (IOException | ServletException e) {
 			this.logger.log(Level.FATAL, "Something went wrong", e);

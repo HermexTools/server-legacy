@@ -1,8 +1,8 @@
-package it.ksuploader.main;
+package it.hermex.main;
 
 
-import it.ksuploader.main.uploaders.socket.SocketListener;
-import it.ksuploader.utils.Configuration;
+import it.hermex.main.uploaders.socket.SocketListener;
+import it.hermex.utils.Configuration;
 import org.apache.log4j.*;
 
 import java.io.BufferedReader;
@@ -13,9 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 
-public class KSUploaderServer {
+public class HermexServer {
 	public static Configuration config;
-	public static Logger logger = Logger.getLogger("KSULogger");
+	public static Logger logger = Logger.getLogger("HermexLogger");
 	
 	public static SocketListener socketListener;
 	public static Webserver webServer;
@@ -28,7 +28,7 @@ public class KSUploaderServer {
 		* BOOTING
 		*/
 		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("                               KSUploader Server                                ");
+		System.out.println("                               Hermex Server                                ");
 		System.out.println("--------------------------------------------------------------------------------");
 		System.out.println("Bootstrap...");
 		bootstrap();
@@ -53,12 +53,12 @@ public class KSUploaderServer {
 	private static void bootstrap() {
 		config = new Configuration();
 		
-		System.out.println("Port: " + KSUploaderServer.config.getPort());
-		System.out.println("Web Port: " + KSUploaderServer.config.getWebPort());
-		System.out.println("Web Url: " + KSUploaderServer.config.getWebUrl());
-		System.out.println("Folder: " + KSUploaderServer.config.getFolder());
-		System.out.println("Folder Max size: " + KSUploaderServer.config.getFolderSize() / (1024 * 1024) + " MB");
-		System.out.println("File Max size: " + KSUploaderServer.config.getMaxFileSize() / (1024 * 1024) + " MB");
+		System.out.println("Port: " + HermexServer.config.getPort());
+		System.out.println("Web Port: " + HermexServer.config.getWebPort());
+		System.out.println("Web Url: " + HermexServer.config.getWebUrl());
+		System.out.println("Folder: " + HermexServer.config.getFolder());
+		System.out.println("Folder Max size: " + HermexServer.config.getFolderSize() / (1024 * 1024) + " MB");
+		System.out.println("File Max size: " + HermexServer.config.getMaxFileSize() / (1024 * 1024) + " MB");
 		
 		File uploadFoder = new File(config.getFolder());
 		if (!uploadFoder.isDirectory()) {
@@ -79,9 +79,9 @@ public class KSUploaderServer {
 		Logger.getRootLogger().addAppender(logConsole);
 		
 		FileAppender logFile = new FileAppender();
-		logFile.setName("KSUploaderFileLogger");
+		logFile.setName("HermexFileLogger");
 		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-		logFile.setFile(MessageFormat.format("logs" + File.separator + "KSUploader_server-{0}.log", date.format(Calendar.getInstance().getTime())));
+		logFile.setFile(MessageFormat.format("logs" + File.separator + "HermexServer-{0}.log", date.format(Calendar.getInstance().getTime())));
 		logFile.setLayout(layout);
 		logFile.setThreshold(Level.INFO);
 		logFile.activateOptions();

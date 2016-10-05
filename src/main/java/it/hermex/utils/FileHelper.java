@@ -1,6 +1,6 @@
-package it.ksuploader.utils;
+package it.hermex.utils;
 
-import it.ksuploader.main.KSUploaderServer;
+import it.hermex.main.HermexServer;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -21,7 +21,7 @@ public class FileHelper {
 	
 	
 	public static long folderSize() {
-		File dir = new File(KSUploaderServer.config.getFolder());
+		File dir = new File(HermexServer.config.getFolder());
 		long length = 0;
 		for (File file : dir.listFiles()) {
 			if (file.isFile())

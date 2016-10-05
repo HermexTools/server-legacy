@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>it.ksuploader</groupId>
-    <artifactId>KSUploader-server</artifactId>
+    <groupId>it.hermex</groupId>
+    <artifactId>Hermex-server</artifactId>
     <version>1.9.1</version>
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>it.ksuploader.main.KSUploaderServer</mainClass>
+                            <mainClass>it.hermex.main.HermexServer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

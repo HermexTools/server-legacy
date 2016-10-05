@@ -1,6 +1,6 @@
-package it.ksuploader.main.uploaders.socket;
+package it.hermex.main.uploaders.socket;
 
-import it.ksuploader.main.KSUploaderServer;
+import it.hermex.main.HermexServer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -21,9 +21,9 @@ public class SocketListener extends Thread {
 	private void buildSocket() throws IOException {
 		try {
 			this.serverSocketChannel = ServerSocketChannel.open();
-			this.serverSocketChannel.socket().bind(new InetSocketAddress(KSUploaderServer.config.getPort()));
+			this.serverSocketChannel.socket().bind(new InetSocketAddress(HermexServer.config.getPort()));
 			
-			this.logger.log(Level.INFO, "Socket listening on port " + KSUploaderServer.config.getPort() + ".");
+			this.logger.log(Level.INFO, "Socket listening on port " + HermexServer.config.getPort() + ".");
 			
 		} catch (IOException exc) {
 			throw new IOException("Can't init the listening socket!");

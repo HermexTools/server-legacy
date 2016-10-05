@@ -1,9 +1,9 @@
-package it.ksuploader.main.panel;
+package it.hermex.main.panel;
 
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
-import it.ksuploader.main.KSUploaderServer;
+import it.hermex.main.HermexServer;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -27,6 +27,8 @@ public class PanelLogin extends HttpServlet {
 			
 			if (request.getSession().getAttribute("logged") != null && request.getParameter("logout").equals("")) {
 				request.getSession().invalidate();
+				response.sendRedirect("/panel/login");
+				return;
 			}
 			
 			if (request.getSession().getAttribute("logged") != null && (boolean) request.getSession().getAttribute("logged")) {
@@ -49,7 +51,7 @@ public class PanelLogin extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			if (request.getParameter("password") != null && request.getParameter("password").equals(KSUploaderServer.config.getPass())) {
+			if (request.getParameter("password") != null && request.getParameter("password").equals(HermexServer.config.getPass())) {
 				request.getSession().setAttribute("logged", true);
 				response.sendRedirect("/panel");
 			} else {

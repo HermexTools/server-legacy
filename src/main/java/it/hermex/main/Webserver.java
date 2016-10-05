@@ -1,4 +1,4 @@
-package it.ksuploader.main;
+package it.hermex.main;
 
 
 import io.undertow.Handlers;
@@ -9,9 +9,9 @@ import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
-import it.ksuploader.main.panel.PanelHome;
-import it.ksuploader.main.panel.PanelLogin;
-import it.ksuploader.main.uploaders.web.HttpRequestHandler;
+import it.hermex.main.panel.PanelHome;
+import it.hermex.main.panel.PanelLogin;
+import it.hermex.main.uploaders.web.HttpRequestHandler;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -19,7 +19,7 @@ import javax.servlet.MultipartConfigElement;
 import java.nio.file.Paths;
 
 import static io.undertow.Handlers.resource;
-import static it.ksuploader.main.KSUploaderServer.config;
+import static it.hermex.main.HermexServer.config;
 
 /**
  * Created by Sergio on 25/09/2016.
@@ -60,7 +60,7 @@ public class Webserver {
 			panel.deploy();
 			
 			PathHandler path = Handlers.path(
-					resource(new PathResourceManager(Paths.get(KSUploaderServer.config.getFolder()), 0))
+					resource(new PathResourceManager(Paths.get(HermexServer.config.getFolder()), 0))
 							.setDirectoryListingEnabled(false)
 			);
 			path.addPrefixPath("/upload", upload.start());
@@ -72,7 +72,7 @@ public class Webserver {
 			
 			
 			this.server = Undertow.builder()
-					.addHttpListener(KSUploaderServer.config.getWebPort(), "0.0.0.0")
+					.addHttpListener(HermexServer.config.getWebPort(), "0.0.0.0")
 					.setHandler(path)
 					.build();
 		} catch (Exception e) {
