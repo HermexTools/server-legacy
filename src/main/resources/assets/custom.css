@@ -3,7 +3,29 @@ body {
 }
 
 .thumb {
-    min-height: 350px;
+   display: block;
+    background-size: contain;
+    height: 200px;
+    position: relative;
+    margin-bottom: 20px;
+    text-decoration: none;
+    background: #fff no-repeat center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    -webkit-transition: border .2s ease-in-out;
+    -o-transition: border .2s ease-in-out;
+    transition: border .2s ease-in-out;
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+}
+.thumb:hover {
+    border: 1px solid #337ab7;
+}
+
+
+.rect {
+    max-height: 270px;
 }
 
 .pager {

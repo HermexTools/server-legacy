@@ -28,7 +28,7 @@
             <form class="navbar-form navbar-left" method="get">
                 <input type="hidden" name="p" value="{{ page }}">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search..." name="search">
+                    <input type="text" class="form-control" placeholder="Search..." name="search" value="{{ searchVal }}">
                 </div>
                 <button type="submit" class="btn btn-default">Search</button>
             </form>
@@ -42,37 +42,34 @@
     <div class="row pager">
         <div class="col-md-12 col-pager">
             {% if nextPage is not empty %}
-                <a href="/panel?page={{ nextPage }}" class="btn btn-default pull-right">Next Page <span
+                <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-right">Next Page <span
                             class="glyphicon glyphicon-chevron-right"></span></a>
             {% endif %}
             {% if previousPage is not empty %}
-                <a href="/panel?page={{ previousPage }}" class="btn btn-default pull-left"><span
+                <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-left"><span
                             class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
             {% endif %}
         </div>
     </div>
     <div class="row">
         {% for f in files %}
-            <div class="col-md-3 thumb">
+            <div class="col-md-3">
                 <div class="row">
                     <div class="col col-md-9"><b>{{ f.file }}</b></div>
                     <div class="col col-md-3">
-                        <a href="/panel?page={{ page }}&delete={{ f.file }}" class="btn btn-danger btn-sm pull-right">
+                        <a href="/panel?p={{ page }}&delete={{ f.file }}" class="btn btn-danger btn-sm pull-right">
                             <span class="glyphicon glyphicon-minus-sign"></span>
                         </a>
                     </div>
                 </div>
                 <div class="row" style="padding-top: 2px">
                     <div class="col col-md-12">
-                        <a class="thumbnail" href="/{{ f.file }}">
-                            {% if f.img %}
-                                <img class="img-responsive" style="max-height: 270px" src="/{{ f.file }}"
-                                     alt="{{ f.file }}">
-                            {% else %}
-                                <img class="img-responsive" style="max-height: 270px" src="/assets/imgs/file.png"
-                                     alt="{{ f.file }}">
-                            {% endif %}
-                        </a>
+                        {% if f.img %}
+                            <a class="thumb" href="/{{ f.file }}" style="background-image: url('/{{ f.file }}')"></a>
+                        {% else %}
+                            <a class="thumb" href="/{{ f.file }}" style="background-image: url('/assets/imgs/file.png')"></a>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -81,11 +78,11 @@
     <div class="row pager">
         <div class="col-md-12 col-pager">
             {% if nextPage is not empty %}
-                <a href="/panel?page={{ nextPage }}" class="btn btn-default pull-right">Next Page <span
+                <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-right">Next Page <span
                             class="glyphicon glyphicon-chevron-right"></span></a>
             {% endif %}
             {% if previousPage is not empty %}
-                <a href="/panel?page={{ previousPage }}" class="btn btn-default pull-left"><span
+                <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-left"><span
                             class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
             {% endif %}
         </div>

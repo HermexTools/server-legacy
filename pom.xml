@@ -6,7 +6,7 @@
 
     <groupId>it.hermex</groupId>
     <artifactId>Hermex-server</artifactId>
-    <version>1.9.1</version>
+    <version>1.10.0</version>
     <build>
         <plugins>
             <plugin>
