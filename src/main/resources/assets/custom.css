@@ -3,7 +3,7 @@ body {
 }
 
 .thumb {
-   display: block;
+    display: block;
     background-size: contain;
     height: 200px;
     position: relative;
@@ -19,10 +19,22 @@ body {
     -moz-background-size: contain;
     -o-background-size: contain;
 }
+
 .thumb:hover {
     border: 1px solid #337ab7;
 }
 
+.file-name {
+    cursor: pointer;
+}
+
+.file-hide-name {
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
 
 .rect {
     max-height: 270px;
