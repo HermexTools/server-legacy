@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by Sergio on 27/09/2016.
@@ -23,6 +24,14 @@ public class PanelHome extends HttpServlet {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	public static final int ENTRY_PER_PAGE = 40;
+	
+	private PebbleTemplate compiledTemplate = new PebbleEngine.Builder().build().getTemplate("templates/home.peb");
+	
+	private Pattern pattern = Pattern.compile("^(?:.*\\.(?:png|jp?g|bmp|gif|svg))$");
+	
+	public PanelHome() throws PebbleException {
+		super();
+	}
 	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -54,19 +63,13 @@ public class PanelHome extends HttpServlet {
 				response.sendRedirect("/panel?p=" + currentPage);
 			}
 			
-			PebbleEngine engine = new PebbleEngine.Builder().build();
-			PebbleTemplate compiledTemplate = engine.getTemplate("templates/home.peb");
-			Map<String, Object> context = new HashMap<>();
-			
-			File f = new File(HermexServer.config.getFolder());
-			
-			
+			File uploadsDir = new File(HermexServer.config.getFolder());
 			File[] folder;
 			if (request.getParameter("search") != null) {
-				FilenameFilter filenameFilter = (dir, name) -> name.contains(request.getParameter("search"));
-				folder = f.listFiles(filenameFilter);
+				FilenameFilter filenameFilter = (dir, name) -> name.toLowerCase().contains(request.getParameter("search").toLowerCase());
+				folder = uploadsDir.listFiles(filenameFilter);
 			} else {
-				folder = f.listFiles();
+				folder = uploadsDir.listFiles();
 			}
 			Arrays.sort(folder, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
 			
@@ -77,10 +80,13 @@ public class PanelHome extends HttpServlet {
 				}
 				int index = i;
 				files.add(new HashMap<String, Object>() {{
-					put("img", folder[index].getName().endsWith(".png") || folder[index].getName().endsWith(".jpg") || folder[index].getName().endsWith(".gif"));
+					put("img", pattern.matcher(folder[index].getName()).matches());
 					put("file", folder[index].getName());
 				}});
 			}
+			
+			Map<String, Object> context = new HashMap<>();
+			
 			context.put("page", currentPage);
 			context.put("files", files);
 			

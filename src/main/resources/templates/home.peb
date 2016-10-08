@@ -25,7 +25,7 @@
         </div>
         <div class="collapse navbar-collapse" id="nb-collapse">
             <form class="navbar-form navbar-left" method="get">
-                <input type="hidden" name="p" value="{{ page }}">
+                <input type="hidden" name="p" value="0">
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search..." name="search" value="{{ searchVal }}">
                 </div>

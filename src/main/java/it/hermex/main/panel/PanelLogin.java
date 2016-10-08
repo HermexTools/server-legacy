@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Sergio on 27/09/2016.
@@ -20,7 +18,13 @@ import java.util.Map;
 public class PanelLogin extends HttpServlet {
 
 	private Logger logger = Logger.getLogger(this.getClass());
-
+	
+	private PebbleTemplate compiledTemplate = new PebbleEngine.Builder().build().getTemplate("templates/login.peb");
+	
+	public PanelLogin() throws PebbleException {
+		super();
+	}
+	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -35,12 +39,7 @@ public class PanelLogin extends HttpServlet {
 				response.sendRedirect("/panel");
 				return;
 			}
-
-			PebbleEngine engine = new PebbleEngine.Builder().build();
-			PebbleTemplate compiledTemplate = engine.getTemplate("templates/login.peb");
-			Map<String, Object> context = new HashMap<>();
-
-			compiledTemplate.evaluate(response.getWriter(), context);
+			compiledTemplate.evaluate(response.getWriter());
 		} catch (IOException e) {
 			logger.log(Level.ERROR, "Cannot get writer.", e);
 		} catch (PebbleException e) {

@@ -36,10 +36,6 @@ body {
     width: 100%;
 }
 
-.rect {
-    max-height: 270px;
-}
-
 .pager {
     margin-bottom: 20px;
     margin-top: 0;
