@@ -28,22 +28,16 @@ body {
     cursor: pointer;
 }
 
+.pager-height-lock {
+    height: 31px;
+}
+
 .file-hide-name {
     overflow: hidden;
     display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
-}
-
-.pager {
-    margin-bottom: 20px;
-    margin-top: 0;
-}
-
-.col-pager {
-    padding-left: 0;
-    padding-right: 0;
 }
 
 .col-centered {

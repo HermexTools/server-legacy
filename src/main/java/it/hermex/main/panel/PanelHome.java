@@ -4,6 +4,7 @@ import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.error.PebbleException;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
 import it.hermex.main.HermexServer;
+import it.hermex.utils.FileHelper;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -89,6 +91,7 @@ public class PanelHome extends HttpServlet {
 			
 			context.put("page", currentPage);
 			context.put("files", files);
+			context.put("folderSize", readableFileSize(FileHelper.folderSize()));
 			
 			if (currentPage + ENTRY_PER_PAGE < folder.length) {
 				context.put("nextPage", currentPage + ENTRY_PER_PAGE);
@@ -112,5 +115,12 @@ public class PanelHome extends HttpServlet {
 		} catch (PebbleException e) {
 			logger.log(Level.ERROR, "Error in template.", e);
 		}
+	}
+	
+	public static String readableFileSize(long size) {
+		if (size <= 0) return "0";
+		final String[] units = new String[]{"B", "kB", "MB", "GB", "TB"};
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 	}
 }

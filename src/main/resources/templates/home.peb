@@ -29,25 +29,32 @@
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search..." name="search" value="{{ searchVal }}">
                 </div>
-                <button type="submit" class="btn btn-default">Search</button>
+                <button type="submit" class="btn btn-success">Search</button>
             </form>
             <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">Total Size: {{ folderSize }}</a></li>
                 <li><a href="/panel/login?logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
             </ul>
         </div>
     </div>
 </nav>
 <div class="container">
-    <div class="row pager">
-        <div class="col-md-12 col-pager">
-            {% if nextPage is not empty %}
-                <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-right">Next Page <span
-                            class="glyphicon glyphicon-chevron-right"></span></a>
-            {% endif %}
-            {% if previousPage is not empty %}
-                <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-left"><span
-                            class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
-            {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="pager pager-height-lock">
+                <li class="previous">
+                    {% if previousPage is not empty %}
+                        <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}"><span
+                                    class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+                    {% endif %}
+                </li>
+                <li class="next">
+                    {% if nextPage is not empty %}
+                        <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}">Next Page <span
+                                    class="glyphicon glyphicon-chevron-right"></span></a>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
     </div>
     <div class="row">
@@ -56,7 +63,7 @@
                 <div class="row">
                     <div class="col col-md-10"><b class="file-hide-name file-name">{{ f.file }}</b></div>
                     <div class="col col-md-2">
-                        <a href="/panel?p={{ page }}&delete={{ f.file }}" class="btn btn-danger btn-sm pull-right">
+                        <a href="/panel?p={{ page }}&delete={{ f.file }}" class="btn btn-danger btn-sm pull-right" style="border-radius: 4px;">
                             <span class="glyphicon glyphicon-minus-sign"></span>
                         </a>
                     </div>
@@ -73,16 +80,22 @@
             </div>
         {% endfor %}
     </div>
-    <div class="row pager">
-        <div class="col-md-12 col-pager">
-            {% if nextPage is not empty %}
-                <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-right">Next Page <span
-                            class="glyphicon glyphicon-chevron-right"></span></a>
-            {% endif %}
-            {% if previousPage is not empty %}
-                <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}" class="btn btn-default pull-left"><span
-                            class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
-            {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="pager pager-height-lock">
+                <li class="previous">
+                    {% if previousPage is not empty %}
+                        <a href="/panel?p={{ previousPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}"><span
+                                    class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+                    {% endif %}
+                </li>
+                <li class="next">
+                    {% if nextPage is not empty %}
+                        <a href="/panel?p={{ nextPage }}{{ searchVal is not empty ? '&search='+searchVal : '' }}">Next Page <span
+                                    class="glyphicon glyphicon-chevron-right"></span></a>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
     </div>
 </div>
